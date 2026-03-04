@@ -1,0 +1,235 @@
+@import "tailwindcss";
+
+/* =====================================================
+   UrbanInsight AI — Design System
+   Mailkit Inspired (Ultra Dark, Hairlines, Glows)
+   ===================================================== */
+
+@theme {
+  /* ── Typography ── */
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-emphasis:
+    "Instrument Serif", serif; /* Used for italic accents in headings */
+
+  /* ── Base Colors (Ultra Dark) ── */
+  --color-base-950: #000000;
+  --color-base-900: #0a0a0a;
+  --color-base-800: #171717;
+  --color-base-700: #262626;
+  --color-base-600: #404040;
+  --color-base-500: #737373;
+  --color-base-400: #a3a3a3;
+  --color-base-300: #d4d4d4;
+  --color-base-200: #e5e5e5;
+  --color-base-100: #f5f5f5;
+  --color-base-50: #ffffff;
+
+  /* ── Brand / Primary (Deep Indigo) ── */
+  --color-primary-400: #7c3aed;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+
+  /* ── Accent (Cyan) ── */
+  --color-accent-400: #22d3ee;
+  --color-accent-500: #06b6d4;
+  --color-accent-600: #0891b2;
+
+  /* ── Semantic Colors ── */
+  --color-success-500: #10b981;
+  --color-warning-500: #f59e0b;
+  --color-danger-500: #ef4444;
+  --color-info-500: #3b82f6;
+
+  /* ── Border Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows (Glows & Inner Edges) ── */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-card: inset 0 1px 0 0 rgba(255, 255, 255, 0.05); /* Hairline highlight */
+  --shadow-glow-sm: 0 0 20px 0 rgba(99, 102, 241, 0.15); /* Btn glow */
+  --shadow-glow-md: 0 0 40px 0 rgba(99, 102, 241, 0.1);
+  --shadow-glow-lg: 0 0 80px 0 rgba(99, 102, 241, 0.08); /* Ambient blob */
+
+  /* ── Animation & Transition ── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Keyframes ── */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-base-950);
+    color: var(--color-base-300);
+    line-height: 1.6;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    color: var(--color-base-50);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Selection ── */
+  ::selection {
+    background-color: rgb(99 102 241 / 0.3);
+    color: var(--color-base-50);
+  }
+
+  /* ── Focus ring ── */
+  :focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Scrollbar (subtle, not distracting) ── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-base-600);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-base-500);
+  }
+}
+
+/* =====================================================
+   Utility Classes
+   ===================================================== */
+
+@layer utilities {
+  /* ── Glass Effect (use sparingly — max 1-2 elements per view) ── */
+  .glass {
+    background: rgb(255 255 255 / 0.03);
+    border: 1px solid rgb(255 255 255 / 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass:hover {
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  /* ── Skeleton Loading (shimmer) ── */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-base-800) 25%,
+      var(--color-base-700) 50%,
+      var(--color-base-800) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+  }
+
+  /* ── Text utilities ── */
+  .text-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-400),
+      var(--color-accent-400)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Transition presets ── */
+  .transition-fast {
+    transition: all 150ms var(--ease-in-out);
+  }
+
+  .transition-normal {
+    transition: all 250ms var(--ease-in-out);
+  }
+
+  .transition-slow {
+    transition: all 400ms var(--ease-out-expo);
+  }
+}
