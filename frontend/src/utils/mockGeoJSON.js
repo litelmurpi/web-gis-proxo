@@ -1,6 +1,14 @@
-// Utility to generate a mock grid (FeatureCollection of polygons)
-// to simulate the XGBoost prediction cells for Jakarta.
-
+/**
+ * Men-generate grid dummy (FeatureCollection poligon) yang membentang di atas koordinat pusat.
+ * Mensimulasikan output prediksi XGBoost dalam bentuk sel grid berukuran spesifik.
+ *
+ * @param {number} [centerLng=106.8456] - Titik bujur pusat (default: Jakarta)
+ * @param {number} [centerLat=-6.2088] - Titik lintang pusat (default: Jakarta)
+ * @param {number} [rows=15] - Jumlah baris grid ke bawah
+ * @param {number} [cols=15] - Jumlah kolom grid ke samping
+ * @param {number} [cellSizeDegree=0.005] - Ukuran sisi setiap sel poligon dalam derajat
+ * @returns {GeoJSON.FeatureCollection} Koleksi fitur GeoJSON siap pakai untuk MapLibre
+ */
 export function generateMockGrid(
   centerLng = 106.8456,
   centerLat = -6.2088,

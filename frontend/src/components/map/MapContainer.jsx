@@ -3,8 +3,8 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { generateMockGrid } from "../../utils/mockGeoJSON";
 
-// Using OpenStreetMap with a CSS invert filter to bypass CartoDB network blocks
-// while still achieving a dark mode aesthetic globally (Esri limits zoom in SEA).
+// WHY: Terpaksa menggunakan OSM Raster Tile + filter CSS Invert dari sisi client.
+// Provider gratis lain seperti Esri Dark Gray membatasi level zoom untuk region Asia Tenggara (blank putih saat di-zoom map level kelurahan).
 const OSM_STYLE = {
   version: 8,
   sources: {
@@ -27,7 +27,12 @@ const OSM_STYLE = {
   ],
 };
 
-// Helper to generate MapLibre data-driven styling depending on the active layer metric
+/**
+ * Mengkonversi tipe data layer aktif ke aturan MapLibre GL Data-Driven Styling Array
+ *
+ * @param {'heat' | 'flood' | 'equity' | 'population'} layer - Nama model geospatial yang sedang aktif
+ * @returns {Array} MapLibre style expression rule array
+ */
 const getLayerColorRule = (layer) => {
   switch (layer) {
     case "heat":

@@ -1,13 +1,15 @@
 import MapContainer from "../components/map/MapContainer";
+import MapLegend from "../components/map/MapLegend";
+import AnalyticsPanel from "../components/charts/AnalyticsPanel";
 import { useLayer } from "../context/LayerContext";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/common/Card";
-import { ThermometerSun, Waves, Users, AlignLeft, Layers } from "lucide-react";
-
+  ThermometerSun,
+  Waves,
+  Users,
+  AlignLeft,
+  BarChart3,
+} from "lucide-react";
+import { useState } from "react";
 const layerIcons = {
   heat: ThermometerSun,
   flood: Waves,
@@ -17,6 +19,7 @@ const layerIcons = {
 
 export default function MapExplorer() {
   const { activeLayer, setActiveLayer, layers } = useLayer();
+  const [isMobileAnalyticsOpen, setIsMobileAnalyticsOpen] = useState(false);
 
   return (
     <div className="w-full h-full bg-base-950 relative overflow-hidden flex">
@@ -24,6 +27,13 @@ export default function MapExplorer() {
       <div className="absolute inset-0 z-0">
         <MapContainer activeLayer={activeLayer} />
       </div>
+
+      {/* Floating Overlays — Legenda & Analitik */}
+      <MapLegend />
+      <AnalyticsPanel
+        isOpen={isMobileAnalyticsOpen}
+        onClose={() => setIsMobileAnalyticsOpen(false)}
+      />
 
       {/* Floating Sidebar Container for Tools (Mobile Only - Dock Style) */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 lg:hidden flex items-center justify-center pointer-events-none">
@@ -51,6 +61,18 @@ export default function MapExplorer() {
               </button>
             );
           })}
+
+          {/* Divider */}
+          <div className="w-px h-8 bg-white/10 mx-1" />
+
+          {/* Analytics Modal Toggle Button */}
+          <button
+            onClick={() => setIsMobileAnalyticsOpen(true)}
+            title="City Analytics"
+            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 outline-none bg-transparent border border-transparent hover:bg-white/5"
+          >
+            <BarChart3 className="w-5 h-5 opacity-60 text-white" />
+          </button>
         </div>
       </div>
     </div>
