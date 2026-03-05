@@ -1,15 +1,58 @@
+import MapContainer from "../components/map/MapContainer";
+import { useLayer } from "../context/LayerContext";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/common/Card";
+import { ThermometerSun, Waves, Users, AlignLeft, Layers } from "lucide-react";
+
+const layerIcons = {
+  heat: ThermometerSun,
+  flood: Waves,
+  equity: Users,
+  population: AlignLeft,
+};
+
 export default function MapExplorer() {
+  const { activeLayer, setActiveLayer, layers } = useLayer();
+
   return (
-    <div className="min-h-screen bg-base-950 flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-heading font-semibold text-white tracking-tight mb-4">
-        Map{" "}
-        <span className="font-emphasis italic font-normal text-primary-400">
-          Engine
-        </span>
-      </h1>
-      <p className="text-base-400 font-body">
-        MapLibre GL JS integration goes here.
-      </p>
+    <div className="w-full h-full bg-base-950 relative overflow-hidden flex">
+      {/* Map Engine - full bleed */}
+      <div className="absolute inset-0 z-0">
+        <MapContainer activeLayer={activeLayer} />
+      </div>
+
+      {/* Floating Sidebar Container for Tools (Mobile Only - Dock Style) */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 lg:hidden flex items-center justify-center pointer-events-none">
+        <div className="pointer-events-auto flex items-center gap-2 p-2 bg-base-950/80 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-full">
+          {layers.map((layer) => {
+            const Icon = layerIcons[layer.id];
+            const isActive = activeLayer === layer.id;
+
+            return (
+              <button
+                key={layer.id}
+                onClick={() => setActiveLayer(layer.id)}
+                title={layer.name} // Tooltip for accessibility
+                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 outline-none
+                  ${isActive ? "bg-white/10 border border-white/20 shadow-sm" : "bg-transparent border border-transparent hover:bg-white/5"}`}
+              >
+                <Icon
+                  className={`w-5 h-5 transition-transform duration-300 ${isActive ? `scale-110 ${layer.color}` : "opacity-60 text-white"}`}
+                />
+
+                {/* Active Indicator Dot */}
+                {isActive && (
+                  <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

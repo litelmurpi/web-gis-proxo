@@ -13,6 +13,7 @@ import {
   TYPOGRAPHY,
   TYPE_SCALE,
 } from "@/constants/designTokens";
+import Button from "../components/common/Button";
 
 /* ── Copy helper ── */
 function copyHex(text, setCopied) {
@@ -245,7 +246,7 @@ export default function DesignSystem() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className="flex items-center gap-2 font-body text-[13px] font-medium px-3 py-2 text-base-400 hover:text-white hover:bg-white/[0.03] rounded-lg transition-colors outline-none"
+                  className="flex items-center gap-2 font-body text-[13px] font-medium px-3 py-2 text-base-400 hover:text-white hover:bg-white/3 rounded-lg transition-colors outline-none"
                 >
                   <item.icon className="w-4 h-4 opacity-70" strokeWidth={2} />
                   {item.label}
@@ -507,7 +508,7 @@ export default function DesignSystem() {
               </span>
               {/* Subtle top inner gradient highlight for 3D feel */}
               <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 rounded-full bg-linear-to-b from-white/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
             </button>
             <p className="mt-8 text-sm text-base-400 font-mono">
               Hover over button to see glow & inner light response

@@ -20,90 +20,54 @@ Kamu adalah **senior frontend developer dan UI/UX designer** dengan pengalaman 5
 
 ---
 
-## 🎨 2. DESIGN PHILOSOPHY — "Clean, Modern, Minimalist"
+## 🎨 2. DESIGN PHILOSOPHY — "Mailkit Inspired (Pure Dark Mode)"
 
 ### Core Aesthetic
 
-Desain UrbanInsight **wajib** mengikuti 3 prinsip ini tanpa kompromi:
+Desain UrbanInsight **wajib** mengikuti estetika premium ala **mailkit.app** (Ultra Dark Mode):
 
-- **Clean** — Setiap elemen harus punya alasan keberadaannya. Kalau bisa dihapus tanpa kehilangan fungsi, hapus. White space bukan ruang kosong — itu breathing room.
-- **Modern** — Gunakan teknik terkini (oklch colors, layered shadows, custom easing) tapi dengan restraint. Modern bukan berarti penuh efek — modern berarti efisien dan intentional.
-- **Minimalist** — Maksimal 3 warna dominan per viewport. UI chrome harus mundur ke background. Data dan map yang berbicara, bukan UI-nya.
+- **Pure Black Foundation:** Jangan gunakan dark gray (`#111` atau `#222`) untuk background utama. Gunakan **PURE BLACK (`#000000`)**. Ini memberikan kontras absolut dan kesan high-end.
+- **Hairline Borders:** Pemisahan antar elemen (card, panel, header) **tidak boleh** menggunakan box-shadow. Gunakan border 1px dengan opasitas sangat rendah (5% - 10%), contoh: `border-white/[0.05]`.
+- **Glow over Shadow:** Drop shadow tradisional mati di atas warna hitam. Untuk memberikan kedalaman atau efek _hover/active_, gunakan **ambient radial glows** (`shadow-glow-sm`, `shadow-glow-md`) dan **inner highlights** (`box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.05)`).
+- **Vibrant Accents:** Karena background sangat gelap, warna aksen (primary indigo, accent cyan, error red) harus sangat saturated agar _pop out_ dan menjadi focal point.
 
 ### ⛔ Anti "AI-Generated Look"
 
 Desain yang terlihat AI-generated adalah **kegagalan**. Hindari ciri-ciri berikut:
 
-- ❌ Gradient rainbow atau neon glow di mana-mana
-- ❌ Warna terlalu saturated di elemen UI (button, navbar, card)
-- ❌ Border radius terlalu besar (20px+) di semua elemen
-- ❌ Terlalu banyak efek sekaligus (glass + glow + shadow + gradient di satu card)
-- ❌ Generic hero section dengan abstract blob shapes
-- ❌ Heading yang terlalu buzzword-heavy ("Revolutionizing Urban AI with Next-Gen Insights")
-- ❌ Pattern yang terasa copy-paste dari Figma template marketplace
+- ❌ Gradient rainbow atau neon glow di tata letak utama (glow hanya untuk interactive state/ambient blurs).
+- ❌ Drop shadow hitam pekat (tidak terlihat di pure black).
+- ❌ Border tebal dan solid.
+- ❌ Padding yang sempit (gunakan layout yang _spacious_, margin besar antar section).
 
-Yang harus terasa: **buatan designer berpengalaman yang tahu kapan harus restraint**. Bukan AI yang mencoba impress dengan semua efek sekaligus.
+### 2.1 Visual Foundation & Typography
 
-### Living Interface
+**Typography (Editorial Tech):**
 
-UI yang baik tidak harus teriak-teriak minta perhatian. Tapi juga tidak boleh diam dan mati. **Living Interface** adalah tentang menemukan sweet spot: interface yang terasa responsif, bernafas, dan punya personality — tanpa mengorbankan clarity.
+- **Body & Default Heading:** `Inter` (Atau `Satoshi` jika dikonfigurasi). Bersih, sangat geometris, mudah dibaca.
+- **Emphasis (Wajib):** `Instrument Serif` (selalu di-set ke _Italic_). Gunakan ini **hanya** untuk memberikan penekanan elegan pada satu atau dua kata di dalam sebuah heading besar. (Contoh: Urban planning, but _smarter_).
+- **Icons:** **WAJIB menggunakan `lucide-react`**. Jangan gunakan library icon lain untuk menjaga konsistensi stroke width dan ketajaman.
 
-### 2.1 Visual Foundation
+**Spacing & Roundness:**
 
-**Dark mode sebagai fondasi**, bukan karena tren — tapi karena ini platform data-heavy. Dark background membuat choropleth maps, charts, dan data highlight lebih pop dan mengurangi eye strain saat user menganalisis peta berlama-lama.
+- Layout harus terasa _spacious_. Gunakan `max-w-7xl` untuk container, dan beri jarak antar elemen yang teratur.
+- Border radius: Buttons/Pills (`rounded-full`), Cards/Panels (`rounded-2xl` atau `rounded-3xl` max), Inner elements (`rounded-lg`).
 
-**Pendekatan warna:**
+### 2.2 Motion & Interactivity
 
-- Jangan pakai warna mentah (`#ff0000`, `#00ff00`). Setiap warna harus dipilih dengan intensi.
-- Palette harus muted dan sophisticated untuk UI chrome (background, cards, text), lalu kontras tinggi untuk data visualization (heatmap, flood zones).
-- Hindari lebih dari 3 warna dominan sekaligus di satu viewport — hierarchy dulu, baru estetika.
-- Untuk data maps, prioritaskan perceptually uniform color scales (misal viridis, magma, atau custom yang sudah teruji readability-nya). Ini bukan pilihan estetik — ini accessibility.
+Prinsip animasi: subtil, cepat, dan mensimulasikan cahaya (light).
 
-**Typography:**
-
-- Pilih Google Fonts yang proven untuk data-heavy UI: **Inter** (body) punya angka tabular yang bagus untuk dashboard, **Space Grotesk** atau **Outfit** (heading) memberikan karakter tanpa mengorbankan readability.
-- Jangan pernah pakai system default fonts — itu langsung terlihat cheap.
-- Hierarchy tipografi harus jelas dalam 3 detik: user harus bisa scan heading → subheading → body tanpa effort.
-
-**Spacing & Consistency:**
-
-- 4px grid system. Semua spacing kelipatan 4 — ini bukan aturan arbitrary, tapi memastikan rhythm visual yang konsisten dan alignment yang bersih di semua breakpoint.
-- Border radius konsisten: `8px` cards, `12px` modals, `9999px` pills. Jangan campur rounded dan sharp tanpa alasan.
-
-**Depth & Layering:**
-
-- Gunakan layered shadows, bukan single box-shadow. Single shadow terlihat flat — layered shadow menciptakan realistic depth yang subtle.
-- Glassmorphism boleh dipakai untuk overlay dan cards, tapi jangan overuse. Kalau semua elemen transparan, tidak ada yang terasa solid. Pilih 1–2 elemen yang paling benefit dari efek ini.
-
-### 2.2 Motion & Animation
-
-Prinsip paling penting: **setiap animasi harus menjawab pertanyaan "untuk apa?"**
-
-- **Page transitions:** Animated, tapi fast. 300–500ms max. User datang untuk melihat data, bukan menonton loading animation. Gunakan GSAP atau Framer Motion.
-- **Hover effects:** Wajib di semua elemen interaktif — tapi subtle. Scale 1.02–1.05, shadow lift, atau color shift ringan. Bukan bounce atau glow berlebihan.
-- **Loading states:** Skeleton shimmer selalu lebih baik dari spinner. Skeleton memberi spatial context tentang apa yang akan muncul.
-- **Data visualization:** Chart entry harus animated — tapi animation selesai dalam 800ms. Setelah itu, data harus readable. Number counting, progress reveal, stagger entry untuk list.
-- **Scroll-triggered:** Elemen muncul dengan stagger saat masuk viewport. Tapi JANGAN animate elemen yang user sudah pernah lihat — cukup sekali.
-- **Micro-interactions:** Button press (scale 0.97), toggle (spring physics), notification (slide-in dari edge). Ini yang membuat interface terasa alive tanpa terasa noisy.
-- **Timing:** Jangan pakai `ease` atau `linear` default. Custom `cubic-bezier` atau spring physics. Gerakan alami di dunia nyata tidak pernah linear.
-
-**Yang harus dihindari:**
-
-- Animasi yang delay user dari task utamanya
-- Parallax yang bikin pusing di data-heavy interface
-- Transisi lebih dari 1 detik untuk UI feedback
-- Animasi yang tidak bisa di-skip atau di-skip secara graceful
+- **Hover States:** Button primary tidak bounce atau sekadar ganti warna. Mereka akan memancarkan _glow_ lebih terang (merubah shadow glow).
+- **Glassmorphism:** Gunakan sangat-sangat minim. Lebih baik bermain di opacity solid colors (`bg-white/[0.03]`) dipadu hairlines, daripada CSS `backdrop-blur` yang mahal secara performa rendering.
+- **Page Transitions:** Cepat dan natural. Gunakan fade-in dengan sedikit `translate-y`.
 
 ### 2.3 Map & Data Visualization
 
-Peta adalah **core** dari produk ini. Perlakukan dengan serius:
+Peta adalah **core** dari produk ini:
 
-- Map interactions harus terasa smooth dan cinematic — fly-to animations saat berpindah lokasi, layer fade transitions saat toggle.
-- Choropleth harus instantly readable. Kalau user perlu baca legend dulu untuk paham, berarti color scale-nya salah.
-- Tooltip muncul dengan fade + slight translate (150ms), bukan instant appear yang terasa janky.
-- Legend harus terintegrasi dan elegan — bukan box putih yang nempel di pojok seperti afterthought.
-- Grid overlay harus bisa di-toggle dan tidak menghalangi readability layer lain.
-- **Tes terakhir:** screenshot peta kamu tanpa UI chrome. Apakah peta itu sendiri sudah bisa bercerita? Kalau iya, desainnya berhasil.
+- MapLibre base map harus menggunakan style **Dark/Midnight**.
+- Data spatial (Heatmap, Flood risk) harus menggunakan skala interpolasi warna yang perceptually uniform.
+- UI overlay di atas peta (seperti Legend atau Layer Toggles) harus berbentuk floating panels (glass/solid black) dengan hairline borders agar tidak memotong peta secara kasar.
 
 ---
 
