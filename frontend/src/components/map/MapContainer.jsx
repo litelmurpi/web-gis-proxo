@@ -88,7 +88,11 @@ const getLayerColorRule = (layer) => {
   }
 };
 
-export default function MapContainer({ activeLayer = "heat" }) {
+export default function MapContainer({
+  activeLayer = "heat",
+  simulationTrees = [],
+  showBeforeAfter = false,
+}) {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [lng] = useState(106.8456); // Jakarta longitude
@@ -162,49 +166,52 @@ export default function MapContainer({ activeLayer = "heat" }) {
         },
       });
 
-      // 4. Interactivity (Hover & Popups)
-      map.current.on("mouseenter", "urban-grid-fill", () => {
-        map.current.getCanvas().style.cursor = "pointer";
+      // 4. Interactivity (Hover Tooltips)
+      const hoverPopup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        className: "urban-popup-dark",
+        maxWidth: "320px",
       });
 
-      map.current.on("mouseleave", "urban-grid-fill", () => {
-        map.current.getCanvas().style.cursor = "";
-      });
-
-      map.current.on("click", "urban-grid-fill", (e) => {
+      map.current.on("mousemove", "urban-grid-fill", (e) => {
         if (!e.features.length) return;
+        map.current.getCanvas().style.cursor = "pointer";
+
         const feature = e.features[0];
         const props = feature.properties;
 
-        // Custom dark-mode HTML for the popup
+        // Custom dark-mode HTML for the hover tooltip
         const popupHtml = `
           <div style="background-color: #000; color: #fff; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Inter', sans-serif;">
-            <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #a1a1aa;">Cell ID: ${props.id}</h4>
-            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
-              <div style="display: flex; justify-content: space-between; gap: 16px;">
-                <span>Heat Risk:</span>
-                <span style="font-weight: 600; color: ${props.heatScore > 75 ? "#ef4444" : props.heatScore > 40 ? "#eab308" : "#22c55e"}">${props.heatScore.toFixed(1)}</span>
+            <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Cell ID: ${props.id}</h4>
+            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between; gap: 24px;">
+                <span style="color: #a1a1aa;">Heat Risk:</span>
+                <span style="font-weight: 600; color: ${props.heatScore > 75 ? "#ef4444" : props.heatScore > 40 ? "#eab308" : "#22c55e"}">${props.heatScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">°C</span></span>
               </div>
-              <div style="display: flex; justify-content: space-between; gap: 16px;">
-                <span>Flood Risk:</span>
-                <span style="font-weight: 600; color: ${props.floodScore > 75 ? "#3b82f6" : props.floodScore > 40 ? "#60a5fa" : "#93c5fd"}">${props.floodScore.toFixed(1)}</span>
+              <div style="display: flex; justify-content: space-between; gap: 24px;">
+                <span style="color: #a1a1aa;">Flood Risk:</span>
+                <span style="font-weight: 600; color: ${props.floodScore > 75 ? "#3b82f6" : props.floodScore > 40 ? "#60a5fa" : "#93c5fd"}">${props.floodScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">%</span></span>
               </div>
-              <div style="display: flex; justify-content: space-between; gap: 16px;">
-                <span>Population:</span>
-                <span style="font-weight: 600; color: #e4e4e7">${props.population}</span>
+              <div style="display: flex; justify-content: space-between; gap: 24px;">
+                <span style="color: #a1a1aa;">Green Equity:</span>
+                <span style="font-weight: 600; color: ${props.equityScore < 30 ? "#f87171" : props.equityScore < 60 ? "#fbbf24" : "#10b981"}">${props.equityScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">idx</span></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 24px;">
+                <span style="color: #a1a1aa;">Population:</span>
+                <span style="font-weight: 600; color: #e4e4e7">${props.population.toLocaleString()} <span style="font-size: 10px; color: #71717a;">p</span></span>
               </div>
             </div>
           </div>
         `;
 
-        new maplibregl.Popup({
-          closeButton: false,
-          className: "urban-popup-dark",
-          maxWidth: "300px",
-        })
-          .setLngLat(e.lngLat)
-          .setHTML(popupHtml)
-          .addTo(map.current);
+        hoverPopup.setLngLat(e.lngLat).setHTML(popupHtml).addTo(map.current);
+      });
+
+      map.current.on("mouseleave", "urban-grid-fill", () => {
+        map.current.getCanvas().style.cursor = "";
+        hoverPopup.remove();
       });
     });
 
@@ -226,24 +233,130 @@ export default function MapContainer({ activeLayer = "heat" }) {
           "fill-color",
           getLayerColorRule(activeLayer),
         );
+
+        // Before/After effect: Dim the base grid if Before/After is active
+        map.current.setPaintProperty(
+          "urban-grid-fill",
+          "fill-opacity",
+          showBeforeAfter
+            ? [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                10,
+                0.4, // Reduced from 0.8 to simulate "cooled down/mitigated"
+                15,
+                0.15, // Fade out heavily when zoomed in to let trees pop
+              ]
+            : [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                10,
+                0.8,
+                15,
+                0.3, // Baseline fade
+              ],
+        );
       }
     };
 
-    // If map style is already loaded, update immediately
     if (map.current.isStyleLoaded()) {
       updateStyle();
     } else {
-      // Otherwise wait for the map to idle/finish loading
       map.current.once("idle", updateStyle);
     }
-  }, [activeLayer]);
+  }, [activeLayer, showBeforeAfter]);
+
+  // Effect to render simulated tree markers
+  useEffect(() => {
+    if (!map.current) return;
+
+    const updateTrees = () => {
+      const sourceId = "simulation-trees";
+      const layerIdOuter = "simulation-trees-glow";
+      const layerIdInner = "simulation-trees-dot";
+
+      // Convert coordinate array to GeoJSON FeatureCollection
+      const geojson = {
+        type: "FeatureCollection",
+        features: simulationTrees.map((coords) => ({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: coords,
+          },
+        })),
+      };
+
+      if (!map.current.getSource(sourceId)) {
+        // Add source and layers if they don't exist yet
+        map.current.addSource(sourceId, {
+          type: "geojson",
+          data: geojson,
+        });
+
+        // Glow effect (outer soft circle)
+        map.current.addLayer({
+          id: layerIdOuter,
+          type: "circle",
+          source: sourceId,
+          paint: {
+            "circle-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              10,
+              4,
+              15,
+              12,
+            ],
+            "circle-color": "#10b981", // emerald-500
+            "circle-opacity": 0.3,
+            "circle-blur": 1,
+          },
+        });
+
+        // Core dot (inner sharp circle)
+        map.current.addLayer({
+          id: layerIdInner,
+          type: "circle",
+          source: sourceId,
+          paint: {
+            "circle-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              10,
+              2,
+              15,
+              4,
+            ],
+            "circle-color": "#34d399", // emerald-400
+            "circle-opacity": 1,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#000000",
+          },
+        });
+      } else {
+        // Just update the data if source exists
+        map.current.getSource(sourceId).setData(geojson);
+      }
+    };
+
+    if (map.current.isStyleLoaded()) {
+      updateTrees();
+    } else {
+      map.current.once("idle", updateTrees);
+    }
+  }, [simulationTrees]);
 
   return (
     <div className="absolute inset-0 w-full h-full bg-base-950">
       {/* CSS Filter inverts the light OSM map into a dark theme with high contrast */}
       <div
         ref={mapContainer}
-        className="absolute inset-0 w-full h-full [filter:invert(100%)_hue-rotate(180deg)_brightness(85%)_contrast(110%)] mix-blend-screen"
+        className="absolute inset-0 w-full h-full filter-[invert(100%)_hue-rotate(180deg)_brightness(85%)_contrast(110%)] mix-blend-screen"
       />
 
       {/* Override maplibre popup background globally to fix the pointing arrow style */}

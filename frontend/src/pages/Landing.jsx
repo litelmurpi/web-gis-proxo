@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useRef, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   Map,
   ThermometerSun,
@@ -21,9 +24,56 @@ import {
   CardDescription,
   CardContent,
 } from "../components/common/Card";
+import Threads from "../components/common/Threads";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Landing() {
-  // Animation variants
+  const heroGlowRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+
+  // GSAP ScrollTrigger effects
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // 1. Parallax shrink on hero glow orb as you scroll down
+      if (heroGlowRef.current) {
+        gsap.to(heroGlowRef.current, {
+          scale: 0.3,
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroGlowRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
+
+      // 2. Staggered section entrance for below-the-fold content
+      gsap.utils.toArray(".gsap-section").forEach((section) => {
+        gsap.fromTo(
+          section,
+          { y: 60, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          },
+        );
+      });
+    }, scrollContainerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Animation variants (framer-motion)
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -42,12 +92,25 @@ export default function Landing() {
   };
 
   return (
-    <div className="bg-base-950 min-h-screen text-white overflow-hidden selection:bg-primary-500/30">
+    <div
+      ref={scrollContainerRef}
+      className="bg-base-950 min-h-screen text-white overflow-hidden selection:bg-primary-500/30"
+    >
       {/* --- 1. HERO SECTION --- */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 flex flex-col items-center justify-center min-h-[90vh]">
         {/* Abstract Background Grid Glow */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
-          <div className="absolute w-[800px] h-[800px] bg-primary-600/10 rounded-full blur-[120px] opacity-50 mix-blend-screen" />
+          <Threads
+            amplitude={0.9}
+            speed={0.4}
+            threadCount={25}
+            color="99,102,241"
+            className="opacity-40"
+          />
+          <div
+            ref={heroGlowRef}
+            className="absolute w-[800px] h-[800px] bg-primary-600/10 rounded-full blur-[120px] opacity-50 mix-blend-screen"
+          />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[64px_64px] mask-[radial-gradient(ellipse_60%_50%_at_50%_40%,#000_20%,transparent_100%)]" />
 
           {/* subtle ambient particles */}
@@ -113,7 +176,7 @@ export default function Landing() {
       </section>
 
       {/* --- 2. THE PROBLEM STATEMENT --- */}
-      <section className="py-24 px-6 border-y border-white/5 bg-base-900/50 relative">
+      <section className="gsap-section py-24 px-6 border-y border-white/5 bg-base-900/50 relative">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
@@ -188,7 +251,7 @@ export default function Landing() {
       </section>
 
       {/* --- 3. CORE MODULES (BENTO GRID) --- */}
-      <section className="py-32 px-6">
+      <section className="gsap-section py-32 px-6">
         <div className="max-w-6xl mx-auto space-y-12">
           <motion.div
             initial="hidden"
@@ -350,8 +413,8 @@ export default function Landing() {
       </section>
 
       {/* --- 5. BOTTOM CTA --- */}
-      <section className="py-32 px-6 border-t border-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-primary-900/10 [mask-image:radial-gradient(ellipse_at_top,#000_10%,transparent_70%)]" />
+      <section className="gsap-section py-24 px-6 bg-base-900/30 border-y border-white/5 relative overflow-hidden">
+        <div className="absolute inset-0 z-0 bg-primary-900/10 mask-[radial-gradient(ellipse_at_top,#000_10%,transparent_70%)]" />
         <motion.div
           className="relative z-10 max-w-3xl mx-auto text-center space-y-8"
           initial="hidden"

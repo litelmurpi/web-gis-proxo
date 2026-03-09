@@ -10,6 +10,9 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useState } from "react";
+import EmptyState from "../components/common/EmptyState";
+import { AlertCircle } from "lucide-react";
+
 const layerIcons = {
   heat: ThermometerSun,
   flood: Waves,
@@ -20,6 +23,19 @@ const layerIcons = {
 export default function MapExplorer() {
   const { activeLayer, setActiveLayer, layers } = useLayer();
   const [isMobileAnalyticsOpen, setIsMobileAnalyticsOpen] = useState(false);
+
+  if (!layers || layers.length === 0) {
+    return (
+      <div className="h-full w-full bg-base-950 flex items-center justify-center p-6">
+        <EmptyState
+          title="Map Layers Unavailable"
+          message="Failed to connect to the geospatial data service. Please try again later."
+          icon={<AlertCircle className="w-10 h-10 text-red-500" />}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full bg-base-950 relative overflow-hidden flex">
