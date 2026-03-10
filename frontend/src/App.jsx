@@ -49,6 +49,22 @@ function AppLayout() {
   );
 }
 
+/* Focus Layout (Navbar + No Sidebar + Full Width) */
+function FocusLayout() {
+  return (
+    <LayerProvider>
+      <div className="flex flex-col h-dvh overflow-hidden">
+        <Navbar />
+        <main className="flex-1 pt-16 relative bg-base-950">
+          <Suspense fallback={<PageSkeleton />}>
+            <Outlet />
+          </Suspense>
+        </main>
+      </div>
+    </LayerProvider>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -62,8 +78,12 @@ function App() {
         {/* Dashboard/App pages with sidebar */}
         <Route element={<AppLayout />}>
           <Route path="/map" element={<MapExplorer />} />
-          <Route path="/analytics" element={<Analytics />} />
           <Route path="/simulation" element={<Simulation />} />
+        </Route>
+
+        {/* Dashboard pages without sidebar */}
+        <Route element={<FocusLayout />}>
+          <Route path="/analytics" element={<Analytics />} />
         </Route>
 
         {/* Standalone pages */}

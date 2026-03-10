@@ -16,7 +16,6 @@ import {
   Globe,
 } from "lucide-react";
 import Button from "../components/common/Button";
-import { Sparkles } from "../components/common/Sparkles";
 import {
   Card,
   CardHeader,
@@ -105,21 +104,11 @@ export default function Landing() {
             speed={0.4}
             threadCount={25}
             color="99,102,241"
-            className="opacity-40"
+            className=""
           />
           <div
             ref={heroGlowRef}
             className="absolute w-[800px] h-[800px] bg-primary-600/10 rounded-full blur-[120px] opacity-50 mix-blend-screen"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[64px_64px] mask-[radial-gradient(ellipse_60%_50%_at_50%_40%,#000_20%,transparent_100%)]" />
-
-          {/* subtle ambient particles */}
-          <Sparkles
-            particleColor="#ffffff"
-            particleCount={80}
-            speed={1}
-            maxSize={4}
-            className="opacity-60"
           />
         </div>
 

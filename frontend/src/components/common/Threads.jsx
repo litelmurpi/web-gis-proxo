@@ -17,7 +17,7 @@ export default function Threads({
   frequency = 0.005,
   speed = 0.5,
   threadCount = 30,
-  color = "99,102,241",
+  color = "99,102,241", // make this color to be dynamic based on theme
   className = "",
 }) {
   const canvasRef = useRef(null);
@@ -51,8 +51,8 @@ export default function Threads({
       for (let i = 0; i < threadCount; i++) {
         const ratio = i / threadCount;
         const baseY = height * (0.15 + ratio * 0.7);
-        const alpha = 0.03 + ratio * 0.06;
-        const lineWidth = 0.5 + Math.sin(ratio * Math.PI) * 1.5;
+        const alpha = 0.1 + ratio * 0.15;
+        const lineWidth = 0.8 + Math.sin(ratio * Math.PI) * 1.8;
         const amp = amplitude * height * 0.08 * (1 + Math.sin(ratio * Math.PI));
         const phaseShift = i * 0.4;
 

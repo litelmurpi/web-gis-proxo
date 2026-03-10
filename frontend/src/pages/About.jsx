@@ -144,7 +144,7 @@ export default function About() {
             speed={0.3}
             threadCount={20}
             color="99,102,241"
-            className="opacity-30"
+            className=""
           />
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary-600/8 rounded-full blur-[120px]" />
         </div>
