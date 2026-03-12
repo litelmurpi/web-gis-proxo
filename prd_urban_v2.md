@@ -368,58 +368,41 @@ Seluruh sistem dibangun di atas grid spasial resolusi 100m x 100m. Setiap grid c
 
 ---
 
-## 8. MODEL AI/ML & RL
+## 8. PENGELOLAAN DATA & MODEL RL (API-DRIVEN APPROACH)
 
-### 8.1 ML Model 1 — Urban Heat Prediction
+### 8.1 API Data Pipeline & Downscaling (Microclimate Synthesis)
+Alih-alih melatih model ML dari awal, UrbanInsight AI menggunakan data prediktif dan historis pihak ketiga yang di-downscale menggunakan filter spasial deterministik pada backend.
 
-| Aspek             | Detail                                                                                                                               |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Algoritma         | XGBoost Regressor                                                                                                                    |
-| Features (X)      | `ndvi`, `building_density`, `land_cover_class`, `population_density`, `elevation`, `distance_to_green_space`, `imperviousness_ratio` |
-| Target (y)        | `land_surface_temperature` (nilai LST aktual dari Landsat)                                                                           |
-| Evaluation Target | MAE < 1.5°C, R² > 0.85, RMSE < 2.0°C                                                                                                 |
-| Validation Method | Spatial K-Fold Cross Validation (5-fold) untuk menghindari spatial autocorrelation leakage                                           |
-| Training Day      | Day 3 (3 Maret 2026)                                                                                                                 |
-| PIC               | ML/AI Engineer                                                                                                                       |
+| Modul                | Sumber Data API                                          | Filter Spasial Deterministic (Downscaling 100m)                                | Target Output Per Grid                              |
+| -------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------- |
+| **Urban Heat (LST)** | Open-Meteo (Suhu base level)                             | `Suhu_Dasar + (Building_Density × 3.0°C) - (Green_Density × 2.5°C)`            | Peta LST resolusi tinggi dengan efek *microclimate* |
+| **Flood Risk**       | Open-Meteo (Curah hujan & Soil Moisture), Elevation DEM  | `Normalized(Rainfall + Soil_Moisture + Proximity_to_River + Imperviousness)`   | Peta Risiko Banjir berskala probabilistik (0.0 - 1.0) |
+| **Green Equity**     | OpenStreetMap (Overpass API)                             | Radius dan luasan poligon tipe `leisure=park`, `natural=wood` dll per grid     | Indeks Akses RTH per wilayah                        |
 
-### 8.2 ML Model 2 — Flood Risk Prediction
+### 8.2 Konstruksi State Environment RL
 
-| Aspek             | Detail                                                                                                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Algoritma         | XGBoost Classifier                                                                                                                                                  |
-| Features (X)      | `elevation`, `slope`, `flow_accumulation`, `distance_to_river`, `land_cover_imperviousness`, `rainfall_7day_avg`, `rainfall_max_event`, `ndvi`, `soil_type_encoded` |
-| Target (y)        | `flood_probability` (0.0–1.0)                                                                                                                                       |
-| Evaluation Target | AUC-ROC > 0.80, F1-Score > 0.75, Precision > 0.70                                                                                                                   |
-| Validation Method | Temporal split — train pada data 2019–2023, validasi pada data 2024–2025                                                                                            |
-| Training Day      | Day 4 (4 Maret 2026)                                                                                                                                                |
-| PIC               | ML/AI Engineer                                                                                                                                                      |
+RL Agent tidak menyadari apakah matriks state berasal dari model ML atau komputasi API deterministik. Environment disusun pada backend secara dinamis.
+
+| Komponen State      | Deskripsi Data                                                                           |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `LST Matrix`        | Grid 2D berisi nilai hasil komputasi *microclimate synthesis*.                           |
+| `Flood Matrix`      | Grid 2D berisi skor kerentanan banjir (0-1).                                             |
+| `Green Matrix`      | Grid 2D berisi jarak/skor normalisasi terhadap RTH terdekat.                             |
+| `Tree Placement`    | Grid 2D berjenis *boolean* (0 atau 1) melacak lokasi pohon yang sudah ditanam oleh agent.|
 
 ### 8.3 RL Agent — PPO Tree Placement
 
-| Aspek          | Detail                                                                        |
-| -------------- | ----------------------------------------------------------------------------- |
-| Algoritma      | PPO (Proximal Policy Optimization)                                            |
-| Library        | Stable-Baselines3                                                             |
-| Policy         | MlpPolicy                                                                     |
-| Hyperparameter | lr=3e-4, n_steps=2048, batch=64, epochs=10, gamma=0.99, lambda=0.95, clip=0.2 |
-| Training Steps | 300K–500K timesteps                                                           |
-| Training Time  | ~30 menit (simplified 20×20 grid, CPU)                                        |
-| Grid Demo      | 20×20 grid                                                                    |
-| Grid Produksi  | 200×200 grid                                                                  |
-| Training Day   | Day 5–6 (5–6 Maret 2026)                                                      |
-| PIC            | ML/AI Engineer                                                                |
+Agent tetap dirancang mengoptimalkan multi-objective dengan action berupa pemilihan titik grid untuk penanaman pohon.
 
-### 8.4 Strategi Validasi Model (Tanpa Ground Truth)
-
-Mengingat validasi lapangan berada di luar scope, kredibilitas model dijaga dengan:
-
-1. **Hold-out Test Set:** 20% data terpisah yang tidak pernah digunakan dalam training
-2. **Spatial K-Fold CV:** Memastikan model tidak overfitting karena spatial autocorrelation
-3. **Temporal Validation (Flood):** Training di tahun sebelumnya, validasi di tahun terbaru
-4. **Benchmark Terhadap Literatur:** Membandingkan performa model dengan hasil studi akademik serupa:
-   - LST prediction via remote sensing: R² 0.75–0.92 (Weng et al., 2019)
-   - Flood susceptibility mapping via ML: AUC-ROC 0.78–0.94 (Tehrany et al., 2019)
-5. **Feature Importance Analysis:** SHAP values untuk memastikan model menangkap variabel yang secara fisik relevan
+| Aspek            | Detail                                                                                                     |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| Algoritma        | PPO (Proximal Policy Optimization)                                                                         |
+| Library          | Stable-Baselines3                                                                                          |
+| Policy           | `MlpPolicy` (Flattened State) atau `CnnPolicy` (Spatial 2D State Image-like)                               |
+| Transition Model | Mengurangi nilai `LST`, `Flood Risk`, dan meningkatkan `Green Equity` secara lokal (misal pada radius 2 grid) |
+| Reward Function  | `(0.35 × ΔT) + (0.30 × ΔFlood) + (0.25 × ΔEquity) - (0.10 × Cost_Penalty)`                                 |
+| Training Steps   | 100K–300K timesteps (Training akan sangat ringan dan cepat karena no ML prediction overhead)               |
+| Simulation Demo  | Pilihan antara 20×20 atau 50x50 grid via WebSockets                                                        |
 
 ---
 

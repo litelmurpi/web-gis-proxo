@@ -8,6 +8,8 @@ import {
   Users,
   AlignLeft,
   BarChart3,
+  Search,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import EmptyState from "../components/common/EmptyState";
@@ -23,6 +25,18 @@ const layerIcons = {
 export default function MapExplorer() {
   const { activeLayer, setActiveLayer, layers } = useLayer();
   const [isMobileAnalyticsOpen, setIsMobileAnalyticsOpen] = useState(false);
+  
+  // Search State
+  const [searchInput, setSearchInput] = useState("");
+  const [cityQuery, setCityQuery] = useState(null); // null = no auto-load on first visit
+  const [isMapLoading, setIsMapLoading] = useState(false);
+  
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      setCityQuery(searchInput.trim());
+    }
+  };
 
   if (!layers || layers.length === 0) {
     return (
@@ -41,7 +55,37 @@ export default function MapExplorer() {
     <div className="w-full h-full bg-base-950 relative overflow-hidden flex">
       {/* Map Engine - full bleed */}
       <div className="absolute inset-0 z-0">
-        <MapContainer activeLayer={activeLayer} />
+        <MapContainer 
+          activeLayer={activeLayer} 
+          cityQuery={cityQuery} 
+          onLoadingChange={setIsMapLoading}
+        />
+      </div>
+
+      {/* Floating City Search Bar */}
+      <div className="absolute top-[80px] left-1/2 -translate-x-1/2 md:-translate-x-0 md:left-24 z-10 w-11/12 md:w-96">
+        <form 
+          onSubmit={handleSearchSubmit}
+          className="bg-base-950/80 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-2 flex items-center gap-2"
+        >
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-400" />
+            <input 
+              type="text"
+              placeholder="Search city administrative boundaries..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full bg-transparent border-none text-white placeholder:text-base-500 text-sm pl-9 pr-4 py-2 focus:ring-0 focus:outline-none"
+            />
+          </div>
+          <button 
+            type="submit"
+            disabled={isMapLoading}
+            className="bg-primary-500 hover:bg-primary-600 disabled:bg-primary-500/50 text-white rounded-xl px-4 py-2 text-sm font-medium transition-all flex items-center gap-2"
+          >
+            {isMapLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
+          </button>
+        </form>
       </div>
 
       {/* Floating Overlays — Legenda & Analitik */}

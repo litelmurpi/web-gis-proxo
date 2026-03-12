@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { generateMockGrid } from "../../utils/mockGeoJSON";
+import { useLayer } from "../../context/LayerContext";
+// import { generateMockGrid } from "../../utils/mockGeoJSON";
 
 // WHY: Terpaksa menggunakan OSM Raster Tile + filter CSS Invert dari sisi client.
 // Provider gratis lain seperti Esri Dark Gray membatasi level zoom untuk region Asia Tenggara (blank putih saat di-zoom map level kelurahan).
@@ -39,12 +40,12 @@ const getLayerColorRule = (layer) => {
       return [
         "interpolate",
         ["linear"],
-        ["get", "heatScore"],
-        0,
-        "rgba(99, 102, 241, 0.05)", // Indigo
-        50,
-        "rgba(234, 179, 8, 0.4)", // Yellow
-        100,
+        ["get", "lst"],
+        25,
+        "rgba(99, 102, 241, 0.4)", // Indigo (set opacity to 0.4 min so it's always visible)
+        29,
+        "rgba(234, 179, 8, 0.5)", // Yellow
+        33,
         "rgba(239, 68, 68, 0.7)", // Red
       ];
     case "flood":
@@ -92,12 +93,15 @@ export default function MapContainer({
   activeLayer = "heat",
   simulationTrees = [],
   showBeforeAfter = false,
+  cityQuery = null,
+  onLoadingChange = () => {},
 }) {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const [lng] = useState(106.8456); // Jakarta longitude
-  const [lat] = useState(-6.2088); // Jakarta latitude
-  const [zoom] = useState(12);
+  const [lng, setLng] = useState(112.7688);
+  const [lat, setLat] = useState(-7.2504);
+  const [zoom, setZoom] = useState(12);
+  const { setCityGeoJSON } = useLayer();
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -126,12 +130,10 @@ export default function MapContainer({
 
     // Wait for the map style to finish loading before adding layers
     map.current.on("load", () => {
-      // 1. Add Data Source
-      const mockData = generateMockGrid(lng, lat, 20, 20, 0.006);
-
+      // Empty source initial
       map.current.addSource("urban-grid", {
         type: "geojson",
-        data: mockData,
+        data: { type: "FeatureCollection", features: [] },
       });
 
       // 2. Add Fill Layer (Heat Risk visualization as default)
@@ -180,27 +182,33 @@ export default function MapContainer({
 
         const feature = e.features[0];
         const props = feature.properties;
+        
+        const heatScore = props.lst || 0;
+        const floodScore = props.floodScore || 0;
+        const equityScore = props.equityScore || 0;
+        const pop = props.population || 0;
+        const gridId = props.grid_idx_x !== undefined ? `${props.grid_idx_x}_${props.grid_idx_y}` : (props.id || "N/A");
 
         // Custom dark-mode HTML for the hover tooltip
         const popupHtml = `
           <div style="background-color: #000; color: #fff; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Inter', sans-serif;">
-            <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Cell ID: ${props.id}</h4>
+            <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Cell ID: ${gridId}</h4>
             <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
               <div style="display: flex; justify-content: space-between; gap: 24px;">
-                <span style="color: #a1a1aa;">Heat Risk:</span>
-                <span style="font-weight: 600; color: ${props.heatScore > 75 ? "#ef4444" : props.heatScore > 40 ? "#eab308" : "#22c55e"}">${props.heatScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">°C</span></span>
+                <span style="color: #a1a1aa;">Heat LST:</span>
+                <span style="font-weight: 600; color: ${heatScore > 35 ? "#ef4444" : heatScore > 32 ? "#eab308" : "#22c55e"}">${heatScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">°C</span></span>
               </div>
               <div style="display: flex; justify-content: space-between; gap: 24px;">
                 <span style="color: #a1a1aa;">Flood Risk:</span>
-                <span style="font-weight: 600; color: ${props.floodScore > 75 ? "#3b82f6" : props.floodScore > 40 ? "#60a5fa" : "#93c5fd"}">${props.floodScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">%</span></span>
+                <span style="font-weight: 600; color: ${floodScore > 75 ? "#3b82f6" : floodScore > 40 ? "#60a5fa" : "#93c5fd"}">${floodScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">%</span></span>
               </div>
               <div style="display: flex; justify-content: space-between; gap: 24px;">
                 <span style="color: #a1a1aa;">Green Equity:</span>
-                <span style="font-weight: 600; color: ${props.equityScore < 30 ? "#f87171" : props.equityScore < 60 ? "#fbbf24" : "#10b981"}">${props.equityScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">idx</span></span>
+                <span style="font-weight: 600; color: ${equityScore < 30 ? "#f87171" : equityScore < 60 ? "#fbbf24" : "#10b981"}">${equityScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">idx</span></span>
               </div>
               <div style="display: flex; justify-content: space-between; gap: 24px;">
                 <span style="color: #a1a1aa;">Population:</span>
-                <span style="font-weight: 600; color: #e4e4e7">${props.population.toLocaleString()} <span style="font-size: 10px; color: #71717a;">p</span></span>
+                <span style="font-weight: 600; color: #e4e4e7">${pop.toLocaleString()} <span style="font-size: 10px; color: #71717a;">p</span></span>
               </div>
             </div>
           </div>
@@ -220,7 +228,58 @@ export default function MapContainer({
       map.current?.remove();
       map.current = null;
     };
-  }, [lng, lat, zoom]);
+  }, []); // Remove lng, lat, zoom deps to prevent re-initializing the whole map
+
+  // Effect to handle City Search queries
+  useEffect(() => {
+    if (!map.current || !cityQuery) return;
+
+    const fetchCityData = async () => {
+      onLoadingChange(true);
+      try {
+        const response = await fetch(`http://localhost:8000/api/analysis/search?city=${encodeURIComponent(cityQuery)}`);
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.error) {
+            console.error("Backend error:", data.error);
+            onLoadingChange(false);
+            return;
+          }
+
+          // Update Source
+          if (map.current.getSource("urban-grid")) {
+             map.current.getSource("urban-grid").setData(data.geojson);
+             setCityGeoJSON(data.geojson); // Share with AnalyticsPanel via context
+          }
+          
+          // Fly/Fit Bounds to city
+          if (data.bbox && data.bbox.length === 4) {
+             const [minLon, minLat, maxLon, maxLat] = data.bbox;
+             map.current.fitBounds(
+               [
+                 [minLon, minLat], // southwestern corner of the bounds
+                 [maxLon, maxLat]  // northeastern corner of the bounds
+               ],
+               { padding: 40, duration: 1500 }
+             );
+          } else if (data.center) {
+             map.current.flyTo({ center: data.center, zoom: 12, duration: 1500 });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch city grid:", err);
+      } finally {
+        onLoadingChange(false);
+      }
+    };
+
+    if (map.current.isStyleLoaded()) {
+      fetchCityData();
+    } else {
+      map.current.once("idle", fetchCityData);
+    }
+  }, [cityQuery]);
 
   // Update map layer paint properties dynamically whenever the activeLayer prop changes
   useEffect(() => {

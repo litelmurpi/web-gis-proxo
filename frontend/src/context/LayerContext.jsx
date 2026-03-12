@@ -4,6 +4,7 @@ const LayerContext = createContext(undefined);
 
 export function LayerProvider({ children }) {
   const [activeLayer, setActiveLayer] = useState("heat");
+  const [cityGeoJSON, setCityGeoJSON] = useState(null); // Shared live GeoJSON from search results
 
   // Keep a unified registry of exact layer configs
   const layers = [
@@ -14,7 +15,7 @@ export function LayerProvider({ children }) {
   ];
 
   return (
-    <LayerContext.Provider value={{ activeLayer, setActiveLayer, layers }}>
+    <LayerContext.Provider value={{ activeLayer, setActiveLayer, layers, cityGeoJSON, setCityGeoJSON }}>
       {children}
     </LayerContext.Provider>
   );

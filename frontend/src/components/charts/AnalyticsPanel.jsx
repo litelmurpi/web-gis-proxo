@@ -10,7 +10,6 @@ import {
 import { useLayer } from "../../context/LayerContext";
 import { BarChart3, ChevronDown, ChevronUp, X } from "lucide-react";
 import { useState, useMemo } from "react";
-import { generateMockGrid } from "../../utils/mockGeoJSON";
 
 /**
  * Menghitung rata-rata skor dari seluruh grid GeoJSON untuk setiap metrik risiko.
@@ -21,39 +20,32 @@ import { generateMockGrid } from "../../utils/mockGeoJSON";
  * @returns {Array<{metric: string, value: number, fullMark: number}>} Data siap Recharts
  */
 function computeCityMetrics(geojson) {
-  const features = geojson.features;
+  const features = geojson?.features || [];
   const count = features.length || 1;
 
   const totals = features.reduce(
     (acc, f) => {
-      acc.heat += f.properties.heatScore;
-      acc.flood += f.properties.floodScore;
-      acc.equity += f.properties.equityScore;
-      acc.pop += f.properties.population;
+      const p = f.properties;
+      // Use 'lst' (°C, typically 25-35) normalized to 0-100, or heatScore for fallback
+      const heatVal = p.lst != null
+        ? Math.max(0, Math.min(100, ((p.lst - 24) / 12) * 100)) // 24°C=0, 36°C=100
+        : (p.heatScore || 0);
+      acc.heat += heatVal;
+      acc.flood += (p.floodScore || 0);
+      acc.equity += (p.equityScore || 0);
+      acc.pop += (p.population || 0);
       return acc;
     },
     { heat: 0, flood: 0, equity: 0, pop: 0 },
   );
 
   return [
-    {
-      metric: "Heat Risk",
-      value: Math.round(totals.heat / count),
-      fullMark: 100,
-    },
-    {
-      metric: "Flood Risk",
-      value: Math.round(totals.flood / count),
-      fullMark: 100,
-    },
-    {
-      metric: "Green Equity",
-      value: Math.round(totals.equity / count),
-      fullMark: 100,
-    },
+    { metric: "Heat Risk", value: Math.round(totals.heat / count), fullMark: 100 },
+    { metric: "Flood Risk", value: Math.round(totals.flood / count), fullMark: 100 },
+    { metric: "Green Equity", value: Math.round(totals.equity / count), fullMark: 100 },
     {
       metric: "Population",
-      value: Math.round(totals.pop / count / 10), // WHY: Normalisasi ke skala 0-100 agar proporsional di radar
+      value: Math.round(totals.pop / count / 10), // Normalize to 0-100
       fullMark: 100,
     },
   ];
@@ -107,13 +99,11 @@ function CustomTooltip({ active, payload }) {
  * @returns {JSX.Element} Panel analitik atau Modal analitik di mobile
  */
 export default function AnalyticsPanel({ isOpen, onClose }) {
-  const { activeLayer } = useLayer();
+  const { activeLayer, cityGeoJSON } = useLayer();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // WHY: useMemo agar generateMockGrid() hanya dipanggil 1x, bukan setiap re-render.
-  // Ini krusial karena fungsi ini menghasilkan 225 fitur GeoJSON.
-  const mockData = useMemo(() => generateMockGrid(), []);
-  const cityMetrics = useMemo(() => computeCityMetrics(mockData), [mockData]);
+  const cityMetrics = useMemo(() => computeCityMetrics(cityGeoJSON), [cityGeoJSON]);
+  const hasData = cityGeoJSON && cityGeoJSON.features?.length > 0;
 
   const strokeColor = radarStrokeColors[activeLayer] || "#6366f1";
   const fillColor = radarFillColors[activeLayer] || "rgba(99, 102, 241, 0.15)";
