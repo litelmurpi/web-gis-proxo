@@ -62,7 +62,7 @@ def search_and_generate_heat(city: str):
         try:
             osm_data = fetch_osm_data(min_lon, min_lat, max_lon, max_lat)
         except Exception as osm_err:
-            logger.warning(f"OSM fetch failed, falling back: {osm_err}")
+            logger.warning(f"OSM fetch failed, using mock densities: {osm_err}")
             osm_data = {}
 
         result_gdf = synthesize_microclimate(grid_gdf, current_temp, osm_data=osm_data)

@@ -5,12 +5,26 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+OSM_TIMEOUT_SECONDS = 8
+OSM_MAX_AREA_DEG = 0.1
+
 def fetch_osm_data(min_lon: float, min_lat: float, max_lon: float, max_lat: float):
+    lon_span = max_lon - min_lon
+    lat_span = max_lat - min_lat
+
+    if lon_span > OSM_MAX_AREA_DEG or lat_span > OSM_MAX_AREA_DEG:
+        center_lon = (min_lon + max_lon) / 2
+        center_lat = (min_lat + max_lat) / 2
+        half = OSM_MAX_AREA_DEG / 2
+        min_lon, max_lon = center_lon - half, center_lon + half
+        min_lat, max_lat = center_lat - half, center_lat + half
+        logger.info(f"OSM query area clamped to {OSM_MAX_AREA_DEG}° × {OSM_MAX_AREA_DEG}° around city center.")
+
     overpass_url = "https://overpass-api.de/api/interpreter"
     bbox = f"{min_lat},{min_lon},{max_lat},{max_lon}"
 
     overpass_query = f"""
-    [out:json][timeout:30];
+    [out:json][timeout:{OSM_TIMEOUT_SECONDS}];
     (
       way["building"]({bbox});
       way["leisure"="park"]({bbox});
@@ -24,7 +38,7 @@ def fetch_osm_data(min_lon: float, min_lat: float, max_lon: float, max_lat: floa
     """
 
     try:
-        response = requests.post(overpass_url, data={'data': overpass_query}, timeout=35)
+        response = requests.post(overpass_url, data={'data': overpass_query}, timeout=OSM_TIMEOUT_SECONDS + 2)
         response.raise_for_status()
         data = response.json()
     except Exception as e:

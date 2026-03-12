@@ -237,7 +237,8 @@ export default function MapContainer({
     const fetchCityData = async () => {
       onLoadingChange(true);
       try {
-        const response = await fetch(`http://localhost:8000/api/analysis/search?city=${encodeURIComponent(cityQuery)}`);
+        const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+        const response = await fetch(`${apiBase}/analysis/search?city=${encodeURIComponent(cityQuery)}`);
         if (response.ok) {
           const data = await response.json();
           
