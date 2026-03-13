@@ -1,8 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+import httpx
 from app.api import endpoints
 
-app = FastAPI(title="UrbanInsight AI Backend", version="2.0", description="API for RL-driven Urban Planning")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Setup: create shared httpx client
+    app.state.client = httpx.AsyncClient(timeout=15.0)
+    yield
+    # Teardown: close client
+    await app.state.client.aclose()
+
+app = FastAPI(
+    title="UrbanInsight AI Backend", 
+    version="2.0", 
+    description="API for RL-driven Urban Planning",
+    lifespan=lifespan
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,4 +31,4 @@ app.include_router(endpoints.router, prefix="/api")
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to UrbanInsight AI API v2.0"}
+    return {"message": "UrbanInsight AI API v2.0 is running"}

@@ -1,14 +1,22 @@
-import requests
+import httpx
 from shapely.geometry import Polygon, MultiPolygon
 import geopandas as gpd
 import logging
 
 logger = logging.getLogger(__name__)
 
+from app.services.cache import osm_cache
+
 OSM_TIMEOUT_SECONDS = 8
 OSM_MAX_AREA_DEG = 0.1
 
-def fetch_osm_data(min_lon: float, min_lat: float, max_lon: float, max_lat: float):
+async def fetch_osm_data(client: httpx.AsyncClient, min_lon: float, min_lat: float, max_lon: float, max_lat: float):
+    # Round coordinates for caching (1km grid snap)
+    cache_key = f"{round(min_lon, 2)},{round(min_lat, 2)},{round(max_lon, 2)},{round(max_lat, 2)}"
+    cached = osm_cache.get(cache_key)
+    if cached:
+        return cached
+
     lon_span = max_lon - min_lon
     lat_span = max_lat - min_lat
 
@@ -38,7 +46,7 @@ def fetch_osm_data(min_lon: float, min_lat: float, max_lon: float, max_lat: floa
     """
 
     try:
-        response = requests.post(overpass_url, data={'data': overpass_query}, timeout=OSM_TIMEOUT_SECONDS + 2)
+        response = await client.post(overpass_url, data={'data': overpass_query}, timeout=OSM_TIMEOUT_SECONDS + 2)
         response.raise_for_status()
         data = response.json()
     except Exception as e:
@@ -74,4 +82,7 @@ def fetch_osm_data(min_lon: float, min_lat: float, max_lon: float, max_lat: floa
     green_gdf = gpd.GeoDataFrame({"geometry": green_polys}, crs="EPSG:4326") if green_polys else gpd.GeoDataFrame(columns=["geometry"])
 
     logger.info(f"OSM: {len(building_polys)} buildings, {len(green_polys)} green spaces fetched.")
-    return {"buildings": buildings_gdf, "greenspaces": green_gdf}
+    
+    output = {"buildings": buildings_gdf, "greenspaces": green_gdf}
+    osm_cache.set(cache_key, output)
+    return output

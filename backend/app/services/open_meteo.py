@@ -1,6 +1,16 @@
-import requests
+import httpx
+from app.services.cache import weather_cache
+import logging
 
-def fetch_open_meteo_current(lat: float, lon: float):
+logger = logging.getLogger(__name__)
+
+async def fetch_open_meteo_current(client: httpx.AsyncClient, lat: float, lon: float):
+    # Round coordinates for caching (weather doesn't change much within ~1km)
+    cache_key = f"{round(lat, 2)},{round(lon, 2)}"
+    cached = weather_cache.get(cache_key)
+    if cached:
+        return cached
+
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": lat,
@@ -16,6 +26,14 @@ def fetch_open_meteo_current(lat: float, lon: float):
         ],
         "timezone": "Asia/Jakarta"
     }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    return response.json()
+    
+    try:
+        response = await client.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        weather_cache.set(cache_key, data)
+        return data
+    except Exception as e:
+        logger.error(f"Open-Meteo API error: {e}")
+        # Fallback dictionary if API fails
+        return {"current": {"temperature_2m": 30.0}}

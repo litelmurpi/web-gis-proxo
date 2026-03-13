@@ -1,7 +1,13 @@
-import requests
+import httpx
 from shapely.geometry import shape
+from app.services.cache import geocoder_cache
 
-def search_city_boundary(city_name: str, country: str = "Indonesia"):
+async def search_city_boundary(client: httpx.AsyncClient, city_name: str, country: str = "Indonesia"):
+    cache_key = f"{city_name.lower().strip()},{country.lower().strip()}"
+    cached = geocoder_cache.get(cache_key)
+    if cached:
+        return cached
+        
     url = "https://nominatim.openstreetmap.org/search"
     params = {
         "q": f"{city_name}, {country}",
@@ -13,7 +19,7 @@ def search_city_boundary(city_name: str, country: str = "Indonesia"):
         "User-Agent": "UrbanInsight-AI-App/1.0"
     }
 
-    response = requests.get(url, params=params, headers=headers)
+    response = await client.get(url, params=params, headers=headers)
     response.raise_for_status()
     data = response.json()
 
@@ -30,10 +36,13 @@ def search_city_boundary(city_name: str, country: str = "Indonesia"):
 
     geojson_geom = result.get('geojson')
 
-    return {
+    output = {
         "display_name": result.get("display_name"),
         "lat": float(result.get("lat")),
         "lon": float(result.get("lon")),
         "boundingbox": (min_lon, min_lat, max_lon, max_lat),
         "geometry": geojson_geom
     }
+    
+    geocoder_cache.set(cache_key, output)
+    return output
