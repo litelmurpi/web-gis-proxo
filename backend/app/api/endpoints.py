@@ -32,7 +32,7 @@ async def generate_heat_grid(request: Request, lat: float, lon: float, radius_km
 
         # Run CPU-bound geospatial tasks in threadpool
         grid_gdf = await run_in_threadpool(create_grid, min_lon, min_lat, max_lon, max_lat, 300)
-        result_gdf = await run_in_threadpool(synthesize_microclimate, grid_gdf, current_temp, {})
+        result_gdf = await run_in_threadpool(synthesize_microclimate, grid_gdf, current_temp, {}, weather_data)
 
         # to_json() is also potentially blocking for large dataframes
         res_json_str = await run_in_threadpool(result_gdf.to_json)
@@ -91,7 +91,8 @@ async def search_and_generate_heat(request: Request, city: str):
             create_grid, min_lon, min_lat, max_lon, max_lat, cell_size, clip_geom
         )
         result_gdf = await run_in_threadpool(
-            synthesize_microclimate, grid_gdf, current_temp, osm_data
+            synthesize_microclimate, grid_gdf, current_temp, osm_data,
+            weather_data if not isinstance(weather_data, Exception) else None
         )
 
         # to_json() is also potentially blocking for large dataframes
