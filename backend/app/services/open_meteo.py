@@ -24,6 +24,8 @@ async def fetch_open_meteo_current(client: httpx.AsyncClient, lat: float, lon: f
             "soil_moisture_0_to_7cm",
             "soil_moisture_7_to_28cm"
         ],
+        "daily": ["precipitation_sum"],
+        "forecast_days": 1,
         "timezone": "Asia/Jakarta"
     }
     
