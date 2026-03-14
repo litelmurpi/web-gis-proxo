@@ -113,8 +113,41 @@ def synthesize_microclimate(grid_gdf: gpd.GeoDataFrame, base_temp: float, osm_da
 
     grid_gdf["lst"] = base_temp + (grid_gdf["building_density"] * 3.0) - (grid_gdf["green_density"] * 2.5)
 
-    np.random.seed(7)
-    grid_gdf["floodScore"] = np.random.uniform(10.0, 90.0, n)
+  
+    water_proximity = np.zeros(n)
+    waterways_gdf = osm_data.get("waterways") if osm_data else None
+    has_waterways = waterways_gdf is not None and len(waterways_gdf) > 0 and "geometry" in waterways_gdf.columns
+    if has_waterways:
+        grid_proj = grid_gdf.to_crs("EPSG:32748")
+        water_proximity = _compute_density_sjoin(grid_proj, waterways_gdf.to_crs("EPSG:32748"))
+
+    weather_data = osm_data.get("weather_data") if osm_data else None
+    precip_factor = 0.0
+    soil_factor = 0.0
+    if weather_data and isinstance(weather_data, dict) and "current" in weather_data:
+        current = weather_data["current"]
+        precip_mm = float(current.get("precipitation", 0.0) or 0.0)
+        soil_moisture = float(current.get("soil_moisture_0_to_7cm", 0.0) or 0.0)
+        precip_factor = min(precip_mm / 50.0, 1.0)
+        soil_factor = min(soil_moisture / 0.6, 1.0)
+
+    structural_flood = (
+        grid_gdf["building_density"].values * 0.55 +
+        (1.0 - grid_gdf["green_density"].values) * 0.45
+    ) 
+
+    water_weight = 0.25 if has_waterways else 0.0
+    struct_weight = 1.0 - water_weight
+
+    weather_boost = (precip_factor * 0.60 + soil_factor * 0.40) * 15.0
+
+    flood_scores = (
+        structural_flood * struct_weight +
+        water_proximity * water_weight
+    ) * 85.0 + weather_boost
+
+    grid_gdf["floodScore"] = np.clip(flood_scores, 5, 95)
+
     np.random.seed(13)
     grid_gdf["equityScore"] = 100 - (grid_gdf["building_density"] * 60 + np.random.uniform(0, 20, n))
     grid_gdf["equityScore"] = grid_gdf["equityScore"].clip(10, 95)
@@ -122,3 +155,4 @@ def synthesize_microclimate(grid_gdf: gpd.GeoDataFrame, base_temp: float, osm_da
     grid_gdf["population"] = np.random.randint(50, 2000, n)
 
     return grid_gdf
+
