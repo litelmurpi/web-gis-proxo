@@ -51,7 +51,7 @@ function FocusLayout() {
     <LayerProvider>
       <div className="flex flex-col h-dvh overflow-hidden">
         <Navbar />
-        <main className="flex-1 pt-16 relative bg-base-950">
+        <main className="flex-1 pt-16 relative bg-base-950 overflow-y-auto">
           <Suspense fallback={<PageSkeleton />}>
             <Outlet />
           </Suspense>
