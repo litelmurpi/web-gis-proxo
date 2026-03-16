@@ -1,101 +1,171 @@
 import { useState, useCallback, useRef } from "react";
-
-// Jakarta center used in mockGeoJSON
-const centerLng = 106.8456;
-const centerLat = -6.2088;
-const cellSizeDegree = 0.005;
+import { SimulationService } from "../services/api";
 
 /**
- * Custom hook untuk mensimulasikan proses Reinforcement Learning.
- * Karena backend WebSocket belum terhubung, hook ini akan berpura-pura
- * mencari titik panas/banjir dan "menanam" pohon satu per satu secara acak
- * di sekitar area pusat.
+ * Custom hook for RL tree placement simulation.
  *
- * @returns {Object} State dan kontrol simulasi
+ * Connects to the real POST /api/simulate backend endpoint
+ * and animates tree placement step-by-step on the map.
+ *
+ * @returns {Object} state and controls for the simulation
  */
 export function useSimulation() {
-  const [status, setStatus] = useState("idle"); // idle, running, completed
-  const [trees, setTrees] = useState([]); // Array koordinat [lng, lat]
+  const [status, setStatus] = useState("idle"); // idle, loading, animating, completed, error
+  const [trees, setTrees] = useState([]); // Array of [lng, lat] for map markers
+  const [gridAfter, setGridAfter] = useState(null); // GeoJSON updated grid for before/after
   const [metrics, setMetrics] = useState({
     treesPlanted: 0,
     tempReduced: 0,
     floodReduced: 0,
+    equityImproved: 0,
+    totalReward: 0,
   });
+  const [error, setError] = useState(null);
+  const [beforeMetrics, setBeforeMetrics] = useState(null);
+  const [afterMetrics, setAfterMetrics] = useState(null);
 
   const intervalRef = useRef(null);
+  const abortRef = useRef(false);
 
   /**
-   * Menghentikan simulasi
+   * Stop the animation loop (data is preserved)
    */
   const stopSimulation = useCallback(() => {
+    abortRef.current = true;
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+    setStatus((prev) => (prev === "animating" ? "completed" : prev));
   }, []);
 
   /**
-   * Reset simulasi ke keadaan awal
+   * Reset everything to initial state
    */
   const resetSimulation = useCallback(() => {
     stopSimulation();
     setStatus("idle");
     setTrees([]);
-    setMetrics({ treesPlanted: 0, tempReduced: 0, floodReduced: 0 });
+    setGridAfter(null);
+    setMetrics({
+      treesPlanted: 0,
+      tempReduced: 0,
+      floodReduced: 0,
+      equityImproved: 0,
+      totalReward: 0,
+    });
+    setError(null);
+    setBeforeMetrics(null);
+    setAfterMetrics(null);
   }, [stopSimulation]);
 
   /**
-   * Memulai proses simulasi palsu (Mock AI Agent)
+   * Run the RL simulation.
    *
-   * @param {number} budget - Menentukan limit pohon yang bisa ditanam
-   * @param {number} speedMs - Kecepatan interval per titik (default 200ms)
+   * @param {string} city - City name to simulate
+   * @param {number} budget - Number of trees (10-500)
+   * @param {Object} weights - Reward weights { heat, flood, equity, cost }
+   * @param {boolean} quick - Use cached grid (skip data fetching)
+   * @param {number} animationSpeedMs - Delay between animated tree placements
    */
   const startSimulation = useCallback(
-    (budget = 500, speedMs = 150) => {
+    async (
+      city = "Surabaya",
+      budget = 50,
+      weights = { heat: 0.35, flood: 0.3, equity: 0.25, cost: 0.1 },
+      quick = false,
+      animationSpeedMs = 120
+    ) => {
       resetSimulation();
-      setStatus("running");
+      setStatus("loading");
+      setError(null);
+      abortRef.current = false;
 
-      // Menghitung target max berdasarkan budget (misal: 1k = 1 pohon per step animasi)
-      // Di sini kita batasi maksimal 200 animasi titik agar browser tidak lag.
-      const targetTrees = Math.min(Math.floor(budget / 10), 200);
-      let currentPlanted = 0;
+      try {
+        const config = { city, budget: Number(budget), weights };
+        const data = quick
+          ? await SimulationService.triggerQuick(config)
+          : await SimulationService.triggerRun(config);
 
-      intervalRef.current = setInterval(() => {
-        if (currentPlanted >= targetTrees) {
-          stopSimulation();
+        if (data.error) {
+          setError(data.error);
+          setStatus("error");
+          return;
+        }
+
+        // Store full results
+        setBeforeMetrics(data.before);
+        setAfterMetrics(data.after);
+        setGridAfter(data.grid_after);
+
+        const steps = data.steps || [];
+        if (steps.length === 0) {
           setStatus("completed");
           return;
         }
 
-        // Mock AI RL: Acak posisi di sekitar grid kota
-        // Seolah-olah agen menemukan ruang kosong di LST tinggi
-        const randomOffsetX = (Math.random() - 0.5) * (15 * cellSizeDegree);
-        const randomOffsetY = (Math.random() - 0.5) * (15 * cellSizeDegree);
+        // Animate tree placements step by step
+        setStatus("animating");
+        let currentStep = 0;
 
-        const newTree = [centerLng + randomOffsetX, centerLat + randomOffsetY];
+        intervalRef.current = setInterval(() => {
+          if (abortRef.current || currentStep >= steps.length) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+            if (!abortRef.current) {
+              setStatus("completed");
+              // Final metrics from backend
+              setMetrics({
+                treesPlanted: steps.length,
+                tempReduced: data.summary?.delta_avg_lst || 0,
+                floodReduced: data.summary?.delta_avg_flood || 0,
+                equityImproved: data.summary?.delta_avg_equity || 0,
+                totalReward: data.summary?.total_reward || 0,
+              });
+            }
+            return;
+          }
 
-        setTrees((prev) => [...prev, newTree]);
-        setMetrics((prev) => ({
-          treesPlanted: prev.treesPlanted + 1,
-          // Mock rumus simplifikasi dampak (diminishing returns)
-          tempReduced: Number(
-            (prev.tempReduced + 0.02 * Math.random()).toFixed(2),
-          ),
-          floodReduced: Number(
-            (prev.floodReduced + 0.05 * Math.random()).toFixed(2),
-          ),
-        }));
+          const step = steps[currentStep];
+          setTrees((prev) => [...prev, [step.lng, step.lat]]);
 
-        currentPlanted++;
-      }, speedMs);
+          // Progressive metrics update (interpolate toward final)
+          const progress = (currentStep + 1) / steps.length;
+          setMetrics({
+            treesPlanted: currentStep + 1,
+            tempReduced: Number(
+              ((data.summary?.delta_avg_lst || 0) * progress).toFixed(2)
+            ),
+            floodReduced: Number(
+              ((data.summary?.delta_avg_flood || 0) * progress).toFixed(2)
+            ),
+            equityImproved: Number(
+              ((data.summary?.delta_avg_equity || 0) * progress).toFixed(2)
+            ),
+            totalReward: Number(
+              ((data.summary?.total_reward || 0) * progress).toFixed(4)
+            ),
+          });
+
+          currentStep++;
+        }, animationSpeedMs);
+      } catch (err) {
+        console.error("Simulation API error:", err);
+        setError(err.message || "Failed to run simulation");
+        setStatus("error");
+      }
     },
-    [resetSimulation, stopSimulation],
+    [resetSimulation]
   );
 
   return {
     status,
     trees,
+    gridAfter,
     metrics,
+    error,
+    beforeMetrics,
+    afterMetrics,
     startSimulation,
     stopSimulation,
     resetSimulation,

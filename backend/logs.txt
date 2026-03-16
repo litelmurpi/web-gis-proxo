@@ -1,0 +1,12 @@
+INFO:     127.0.0.1:45158 - "POST /api/simulate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45230 - "POST /api/simulate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41924 - "GET /api/analysis/search?city=Surabaya HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34920 - "GET /api/analysis/search?city=Surabaya HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40918 - "OPTIONS /api/simulate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40904 - "GET /api/analysis/search?city=Klaten HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40918 - "POST /api/simulate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38080 - "GET /api/analysis/search?city=Surabaya HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47446 - "GET /api/analysis/search?city=Bandung HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60692 - "GET /api/analysis/search?city=Surabaya HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33652 - "POST /api/simulate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33648 - "GET /api/analysis/search?city=Bandung HTTP/1.1" 200 OK

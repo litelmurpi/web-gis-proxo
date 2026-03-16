@@ -35,3 +35,6 @@ weather_cache = TTLCache(ttl_seconds=600)
 
 # 3. OSM Data: 1 hour (3600s) - Building/park data updates slowly
 osm_cache = TTLCache(ttl_seconds=3600)
+
+# 4. Simulation Grid: 5 minutes (300s) - Re-run RL without re-fetching data
+simulation_cache = TTLCache(ttl_seconds=300)
