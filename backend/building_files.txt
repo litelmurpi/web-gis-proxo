@@ -1,0 +1,15 @@
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R10_C28.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R10_C29.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R10_C30.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R10_C31.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R10_C32.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R10_C33.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R11_C29.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R11_C30.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R11_C31.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R11_C33.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R9_C28.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R9_C29.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R9_C30.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R9_C31.tif
+C:\Users\Sandy\web-gis-proxo\backend\data\Building\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R9_C32.tif

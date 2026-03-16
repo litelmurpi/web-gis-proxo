@@ -79,10 +79,12 @@ const getLayerColorRule = (layer) => {
         ["get", "population"],
         0,
         "rgba(99, 102, 241, 0.05)",
-        500,
-        "rgba(168, 85, 247, 0.4)", // Purple
-        1000,
-        "rgba(236, 72, 153, 0.7)", // Pink
+        50,
+        "rgba(168, 85, 247, 0.3)",  // Purple (low-mid density)
+        150,
+        "rgba(236, 72, 153, 0.55)", // Pink (mid-high density)
+        330,
+        "rgba(244, 63, 94, 0.8)",   // Rose (highest density - WorldPop max ~325)
       ];
     default:
       return "rgba(255, 255, 255, 0.05)";

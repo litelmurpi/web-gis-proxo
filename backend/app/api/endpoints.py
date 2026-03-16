@@ -31,7 +31,7 @@ async def generate_heat_grid(request: Request, lat: float, lon: float, radius_km
         current_temp = weather_data['current']['temperature_2m']
 
         # Run CPU-bound geospatial tasks in threadpool
-        grid_gdf = await run_in_threadpool(create_grid, min_lon, min_lat, max_lon, max_lat, 300)
+        grid_gdf = await run_in_threadpool(create_grid, min_lon, min_lat, max_lon, max_lat, 500)
         result_gdf = await run_in_threadpool(synthesize_microclimate, grid_gdf, current_temp, {}, weather_data)
 
         # to_json() is also potentially blocking for large dataframes
@@ -67,32 +67,25 @@ async def search_and_generate_heat(request: Request, city: str):
             max_lat = lat + (max_span / 2)
 
         span_deg = max_lon - min_lon
-        cell_size = 300 if span_deg < 0.15 else 400
+        cell_size = 500
 
-        # 2. Parallel fetching of Weather and OSM data
-        weather_task = fetch_open_meteo_current(client, lat, lon)
-        osm_task = fetch_osm_data(client, min_lon, min_lat, max_lon, max_lat)
-        
-        weather_data, osm_data = await asyncio.gather(weather_task, osm_task, return_exceptions=True)
-        
-        # Handle exceptions gracefully
-        if isinstance(weather_data, Exception):
-            logger.error(f"Weather fetch failed: {weather_data}")
-            current_temp = 30.0 # fallback
-        else:
+        # 2. Fetch only weather (OSM skipped — Overpass API is too slow)
+        try:
+            weather_data = await fetch_open_meteo_current(client, lat, lon)
             current_temp = weather_data['current']['temperature_2m']
-            
-        if isinstance(osm_data, Exception):
-            logger.warning(f"OSM fetch failed, using mock densities: {osm_data}")
-            osm_data = {}
+        except Exception as e:
+            logger.warning(f"Weather fetch failed: {e}")
+            weather_data = None
+            current_temp = 30.0  # fallback
+
+        osm_data = {}  # Skip OSM — population comes from WorldPop TIF
 
         # 3. Create grid and synthesize - CPU bound tasks delegated to threadpool
         grid_gdf = await run_in_threadpool(
             create_grid, min_lon, min_lat, max_lon, max_lat, cell_size, clip_geom
         )
         result_gdf = await run_in_threadpool(
-            synthesize_microclimate, grid_gdf, current_temp, osm_data,
-            weather_data if not isinstance(weather_data, Exception) else None
+            synthesize_microclimate, grid_gdf, current_temp, osm_data, weather_data
         )
 
         # to_json() is also potentially blocking for large dataframes

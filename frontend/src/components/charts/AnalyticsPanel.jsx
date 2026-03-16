@@ -33,20 +33,24 @@ function computeCityMetrics(geojson) {
       acc.heat += heatVal;
       acc.flood += (p.floodScore || 0);
       acc.equity += (p.equityScore || 0);
-      acc.pop += (p.population || 0);
+      acc.totalPop += (p.population || 0);
+      // Normalize pop density per cell to 0-100 for radar (WorldPop max ~325/cell)
+      acc.popDensity += Math.min(100, ((p.population || 0) / 325) * 100);
       return acc;
     },
-    { heat: 0, flood: 0, equity: 0, pop: 0 },
+    { heat: 0, flood: 0, equity: 0, totalPop: 0, popDensity: 0 },
   );
 
   return [
-    { metric: "Heat Risk", value: Math.round(totals.heat / count), fullMark: 100 },
-    { metric: "Flood Risk", value: Math.round(totals.flood / count), fullMark: 100 },
-    { metric: "Green Equity", value: Math.round(totals.equity / count), fullMark: 100 },
+    { metric: "Heat Risk",   value: Math.round(totals.heat / count),       fullMark: 100, display: null },
+    { metric: "Flood Risk",  value: Math.round(totals.flood / count),      fullMark: 100, display: null },
+    { metric: "Green Equity",value: Math.round(totals.equity / count),     fullMark: 100, display: null },
     {
       metric: "Population",
-      value: Math.round(totals.pop / count / 10), // Normalize to 0-100
+      value: Math.round(totals.popDensity / count), // Normalized density for radar
       fullMark: 100,
+      display: totals.totalPop.toLocaleString(),    // Real total shown in stat card
+      displayUnit: "residents",
     },
   ];
 }
@@ -241,8 +245,10 @@ function ChartContent({ cityMetrics, strokeColor, fillColor }) {
               {m.metric}
             </p>
             <p className="text-sm font-semibold text-white mt-0.5">
-              {m.value}
-              <span className="text-base-500 text-[10px] ml-0.5">/100</span>
+              {m.display ?? m.value}
+              <span className="text-base-500 text-[10px] ml-0.5">
+                {m.displayUnit ?? "/100"}
+              </span>
             </p>
           </div>
         ))}

@@ -1,0 +1,32 @@
+[
+  {
+    "file": "data\\Building\\GHS_BUILT_S_E2030_GLOBE_R2023A_54009_100_V1_0_R10_C28.tif",
+    "crs": "ESRI:54009",
+    "width": 2000,
+    "height": 3000,
+    "bands": 1,
+    "dtypes": [
+      "uint16"
+    ],
+    "nodata": [
+      65535.0
+    ],
+    "min": 0.0,
+    "max": 65535.0
+  },
+  {
+    "file": "data\\terrascope_download_20260315_033156\\WORLDCOVER\\ESA_WORLDCOVER_10M_2021_V200\\MAP\\ESA_WorldCover_10m_2021_v200_N00E093_Map\\ESA_WorldCover_10m_2021_v200_N00E093_Map.tif",
+    "crs": "EPSG:4326",
+    "width": 36000,
+    "height": 36000,
+    "bands": 1,
+    "dtypes": [
+      "uint8"
+    ],
+    "nodata": [
+      0.0
+    ],
+    "min": 0.0,
+    "max": 95.0
+  }
+]

@@ -1,9 +1,121 @@
+import os
 import geopandas as gpd
 from shapely.geometry import box, Polygon, Point, MultiPolygon, shape
 import numpy as np
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Path to the compressed population raster (relative to this file's location)
+_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data")
+POPULATION_TIF = os.path.join(_DATA_DIR, "idn_ppp_2020_compressed.tif")
+
+import glob
+
+def _sample_from_multi_tifs(grid_gdf: gpd.GeoDataFrame, tif_pattern: str, is_building: bool = False, is_green: bool = False) -> np.ndarray:
+    """Samples density from multiple TIF files by checking intersection first."""
+    tif_files = glob.glob(tif_pattern, recursive=True)
+    if not tif_files:
+        logger.warning(f"No TIFs found for pattern {tif_pattern}")
+        return None
+    
+    result = np.zeros(len(grid_gdf))
+    sampled_mask = np.zeros(len(grid_gdf), dtype=bool)
+    
+    for tif in tif_files:
+        try:
+            import rasterio
+            with rasterio.open(tif) as src:
+                # To check intersection, we need grid bounds in TIF CRS
+                if src.crs is not None:
+                    grid_proj = grid_gdf.to_crs(src.crs)
+                else:
+                    grid_proj = grid_gdf
+                    
+                tif_bounds = src.bounds
+                minx, miny, maxx, maxy = grid_proj.total_bounds
+                
+                # Check spatial intersection of bounding boxes first
+                if not (minx <= tif_bounds.right and maxx >= tif_bounds.left and miny <= tif_bounds.top and maxy >= tif_bounds.bottom):
+                    continue # Skip this TIF
+                
+                # Filter points to those strictly inside this TIF's bounds
+                centroids = grid_proj.geometry.centroid
+                inside_coords = []
+                idx_map = []
+                b_left, b_bottom, b_right, b_top = tif_bounds
+                
+                # Check all centroids - idx is the absolute index in grid_gdf
+                for idx, pt in enumerate(centroids):
+                    if b_left <= pt.x <= b_right and b_bottom <= pt.y <= b_top:
+                        inside_coords.append((pt.x, pt.y))
+                        idx_map.append(idx)
+                        
+                if not inside_coords:
+                    continue
+                    
+                sampled = np.array([v[0] for v in src.sample(inside_coords)], dtype=float)
+                
+                # Specific logic based on data type
+                if is_building:
+                    # GHSL indicates percentage built-up (0-100). Convert to 0.0 - 1.0. 
+                    # Nodata is usually 65535 or >100.
+                    sampled = np.where(sampled > 100, 0, sampled) / 100.0
+                elif is_green:
+                    # ESA WorldCover classes: 
+                    # 10=Tree cover, 20=Shrubland, 30=Grassland, 40=Cropland
+                    # 50=Built-up (Ignore), 60=Bare/Sparse vegetation, 
+                    # 70=Snow/Ice, 80=Permanent water bodies, 90=Herbaceous wetland, 95=Mangroves, 100=Moss/Lichen
+                    is_green_mask = np.isin(sampled, [10, 20, 30, 40, 90, 95, 100])
+                    # Represent as 1.0 if it's green, 0.0 otherwise
+                    sampled = np.where(is_green_mask, 1.0, 0.0)
+                    
+                # Update result array
+                for i, s_val in zip(idx_map, sampled):
+                    if s_val > 0:
+                        result[i] = s_val
+                        sampled_mask[i] = True
+                        
+        except Exception as e:
+            logger.warning(f"Error reading {tif}: {e}")
+            
+    if not sampled_mask.any():
+        return None
+        
+    return result
+
+
+def _sample_population_from_tif(grid_gdf: gpd.GeoDataFrame) -> np.ndarray:
+    """
+    Sample WorldPop population counts from idn_ppp_2020_compressed.tif
+    for each grid cell centroid. Returns an integer array of population per cell.
+    Falls back to None if the TIF file is unavailable.
+    """
+    try:
+        import rasterio
+
+        tif_path = os.path.abspath(POPULATION_TIF)
+        if not os.path.exists(tif_path):
+            logger.warning(f"Population TIF not found at {tif_path}. Falling back to building-area estimate.")
+            return None
+
+        centroids = grid_gdf.geometry.centroid
+        coords = [(pt.x, pt.y) for pt in centroids]
+
+        with rasterio.open(tif_path) as src:
+            sampled = np.array([v[0] for v in src.sample(coords)], dtype=float)
+
+        # WorldPop uses -99999 or negative as NoData — clamp to 0
+        sampled = np.where(sampled < 0, 0.0, sampled)
+        sampled = np.nan_to_num(sampled, nan=0.0, posinf=0.0, neginf=0.0)
+
+        population = np.floor(sampled).astype(int)
+        logger.info(f"Population sampled from TIF. Range: {population.min()}-{population.max()}, Total: {population.sum()}")
+        return population
+
+    except Exception as e:
+        logger.warning(f"Failed to sample population from TIF: {e}. Falling back to building-area estimate.")
+        return None
 
 def create_grid(min_lon: float, min_lat: float, max_lon: float, max_lat: float, cell_size_m: int = 100, clip_polygon: dict = None):
     cell_size_deg = cell_size_m / 111320.0
@@ -17,7 +129,7 @@ def create_grid(min_lon: float, min_lat: float, max_lon: float, max_lat: float, 
         min_lat, max_lat = center_lat - (cell_size_deg * 2.5), center_lat + (cell_size_deg * 2.5)
 
     # Cap grid cells to prevent slow computation
-    MAX_CELLS = 2000
+    MAX_CELLS = 1500
     lon_cells = int((max_lon - min_lon) / cell_size_deg)
     lat_cells = int((max_lat - min_lat) / cell_size_deg)
     if lon_cells * lat_cells > MAX_CELLS and lon_cells > 0 and lat_cells > 0:
@@ -114,37 +226,49 @@ def synthesize_microclimate(grid_gdf: gpd.GeoDataFrame, base_temp: float, osm_da
     n = len(grid_gdf)
 
     buildings_gdf = osm_data.get("buildings") if osm_data else None
-    green_gdf = osm_data.get("greenspaces") if osm_data else None
     water_gdf = osm_data.get("waterways") if osm_data else None
 
-    has_real_buildings = buildings_gdf is not None and len(buildings_gdf) > 0 and "geometry" in buildings_gdf.columns
-    has_real_green = green_gdf is not None and len(green_gdf) > 0 and "geometry" in green_gdf.columns
+    has_real_osm_buildings = buildings_gdf is not None and len(buildings_gdf) > 0 and "geometry" in buildings_gdf.columns
     has_real_water = water_gdf is not None and len(water_gdf) > 0 and "geometry" in water_gdf.columns
 
     grid_gdf = grid_gdf.copy()
+    grid_proj = grid_gdf.to_crs("EPSG:32748").copy()
 
-    grid_proj = None
-    if has_real_buildings or has_real_green or has_real_water:
-        grid_proj = grid_gdf.to_crs("EPSG:32748").copy()
-
-    # ---- Building density ----
-    if has_real_buildings:
+    # ---- Building density (From TIF or OSM fallback) ----
+    building_tif_pattern = os.path.join(_DATA_DIR, "Building", "*.tif")
+    tif_building_density = _sample_from_multi_tifs(grid_gdf, building_tif_pattern, is_building=True)
+    
+    if tif_building_density is not None:
+        grid_gdf["building_density"] = tif_building_density
+        # Approximate building area based on cell size (100x100m = 10000m2)
+        grid_gdf["building_area_m2"] = grid_gdf["building_density"] * 10000.0
+        logger.info("synthesize_microclimate: used REAL Building TIF data.")
+    elif has_real_osm_buildings:
         bld_proj = buildings_gdf.to_crs("EPSG:32748")
         grid_gdf["building_density"] = _compute_density_sjoin(grid_proj, bld_proj)
-        # Also compute building area for population
         grid_gdf["building_area_m2"] = _compute_area_per_cell(grid_proj, bld_proj)
     else:
         np.random.seed(42)
         grid_gdf["building_density"] = np.random.uniform(0.0, 0.8, n)
         grid_gdf["building_area_m2"] = np.zeros(n)
 
-    # ---- Green density ----
-    if has_real_green:
-        green_proj = green_gdf.to_crs("EPSG:32748")
-        grid_gdf["green_density"] = _compute_density_sjoin(grid_proj, green_proj)
+    # ---- Green density (From TIF or OSM fallback) ----
+    green_tif_pattern = os.path.join(_DATA_DIR, "terrascope_download_*", "WORLDCOVER", "ESA_WORLDCOVER_10M_2021_V200", "MAP", "*", "*.tif")
+    tif_green_density = _sample_from_multi_tifs(grid_gdf, green_tif_pattern, is_green=True)
+    
+    if tif_green_density is not None:
+        grid_gdf["green_density"] = tif_green_density
+        logger.info("synthesize_microclimate: used REAL Green TIF data.")
     else:
-        np.random.seed(99)
-        grid_gdf["green_density"] = np.random.uniform(0.0, 0.5, n)
+        # Fallback to OSM or random
+        green_gdf = osm_data.get("greenspaces") if osm_data else None
+        has_real_green = green_gdf is not None and len(green_gdf) > 0 and "geometry" in green_gdf.columns
+        if has_real_green:
+            green_proj = green_gdf.to_crs("EPSG:32748")
+            grid_gdf["green_density"] = _compute_density_sjoin(grid_proj, green_proj)
+        else:
+            np.random.seed(99)
+            grid_gdf["green_density"] = np.random.uniform(0.0, 0.5, n)
 
     # ---- Water proximity (for flood) ----
     if has_real_water:
@@ -152,11 +276,6 @@ def synthesize_microclimate(grid_gdf: gpd.GeoDataFrame, base_temp: float, osm_da
         grid_gdf["water_proximity"] = _compute_density_sjoin(grid_proj, water_proj)
     else:
         grid_gdf["water_proximity"] = np.zeros(n)
-
-    if has_real_buildings or has_real_green or has_real_water:
-        logger.info("synthesize_microclimate: used real OSM density data.")
-    else:
-        logger.warning("synthesize_microclimate: no OSM data, using stochastic fallback.")
 
     # =========================
     # Heat Risk (LST)
@@ -201,22 +320,27 @@ def synthesize_microclimate(grid_gdf: gpd.GeoDataFrame, base_temp: float, osm_da
     # =========================
     # Green Equity Score
     # =========================
-    # Equity is derived from building density (penalizes equity) and green density (boosts it)
-    # Rather than random, we use purely geographic features
-    grid_gdf["equityScore"] = 100 - (grid_gdf["building_density"] * 70) + (grid_gdf["green_density"] * 30)
-    grid_gdf["equityScore"] = grid_gdf["equityScore"].clip(10, 95)
+    # Equity is derived from building density (penalizes equity if no green) and green density
+    # A fully built-up block with no green space gets a low score.
+    grid_gdf["equityScore"] = (grid_gdf["green_density"] * 100) + ((1.0 - grid_gdf["building_density"]) * 20)
+    grid_gdf["equityScore"] = grid_gdf["equityScore"].clip(5, 95)
 
     # =========================
-    # Population (estimated)
+    # Population (from WorldPop TIF or fallback estimate)
     # =========================
-    # ~1 person per 20 m² floor area, average 2 floors in Indonesian urban areas
-    if has_real_buildings:
-        estimated_pop = (grid_gdf["building_area_m2"] * 2.0) / 20.0
-        grid_gdf["population"] = np.floor(estimated_pop).clip(0, 50000).astype(int)
-        logger.info(f"Population estimated from building area. Range: {grid_gdf['population'].min()}-{grid_gdf['population'].max()}")
+    # Priority 1: Real WorldPop data from idn_ppp_2020_compressed.tif
+    tif_population = _sample_population_from_tif(grid_gdf)
+    if tif_population is not None:
+        grid_gdf["population"] = tif_population
     else:
-        np.random.seed(21)
-        grid_gdf["population"] = np.random.randint(50, 2000, n)
+        # Priority 2: Estimate from building density (avoid checking is None directly on numpy)
+        # Using building_density to estimate built-up square meters per 500x500m cell
+        # 500x500m cell = 250,000 sq m total area. 
+        # Typically high-density urban areas like Jakarta have ~150-300 people per hectare (10,000 sq m)
+        # We can scale max 1500 people per grid cell
+        estimated_pop = grid_gdf["building_density"] * 1500.0
+        grid_gdf["population"] = np.floor(estimated_pop).clip(0, 50000).astype(int)
+        logger.info(f"Population estimated from building density. Range: {grid_gdf['population'].min()}-{grid_gdf['population'].max()}")
 
     return grid_gdf
 
