@@ -96,4 +96,15 @@ export const SimulationService = {
     api.post(`/simulate/quick`, config, { timeout: 30000 }),
 };
 
+export const AnalyticsService = {
+  /**
+   * Fetches grid data for a city for analytics.
+   * Reuses the /analysis/search endpoint — returns { center, bbox, geojson }.
+   * @param {string} city - City name
+   * @returns {Promise<Object>}
+   */
+  getCityData: (city) =>
+    api.get(`/analysis/search`, { params: { city } }),
+};
+
 export default api;
