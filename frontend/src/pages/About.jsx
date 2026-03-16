@@ -48,52 +48,32 @@ const modules = [
     color: "text-red-400",
     bg: "bg-red-500/10 border-red-500/20",
     title: "Urban Heat Prediction",
-<<<<<<< HEAD
-    desc: "Predicts Land Surface Temperature (LST) per 100m grid using XGBoost Regressor with Landsat 8/9, NDVI, and building density data.",
-    metric: "MAE < 1.5°C",
-=======
-    desc: "Computes Land Surface Temperature (LST) per grid cell using physics-based formula: Open-Meteo base temp + building density (GHSL) × 6°C − green density (ESA WorldCover) × 4°C.",
+    desc: "Computes Land Surface Temperature (LST) per grid cell using a physics-based formula: Open-Meteo base temp + building density (GHSL) × 6°C − green density (ESA WorldCover) × 4°C.",
     metric: "Real-time LST per Cell",
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
   },
   {
     icon: Waves,
     color: "text-blue-400",
     bg: "bg-blue-500/10 border-blue-500/20",
     title: "Flood Risk Scoring",
-<<<<<<< HEAD
-    desc: "Calculates flood-risk probability (0–1.0) per grid using XGBoost Classifier with 9 geospatial features including DEM, rainfall, and imperviousness.",
-    metric: "AUC-ROC > 0.80",
-=======
     desc: "Computes flood risk score (10–95) via composite scoring: building density × 30 + water proximity × 40 + daily precipitation + soil moisture from Open-Meteo.",
     metric: "Composite Score 10–95",
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
   },
   {
     icon: TreePine,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
     title: "Green Equity Index",
-<<<<<<< HEAD
-    desc: "Measures inequality of green open space access using a modified Gini Coefficient and K-Means Clustering into 4 clusters.",
-    metric: "Equity Score 0–100",
-=======
     desc: "Measures green space access inequality per grid cell: green density (ESA WorldCover) × 100 + open space bonus. Dense built-up areas with no vegetation receive low scores.",
     metric: "Equity Score 5–95",
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
   },
   {
     icon: BrainCircuit,
     color: "text-purple-400",
     bg: "bg-purple-500/10 border-purple-500/20",
     title: "RL Tree Placement",
-<<<<<<< HEAD
-    desc: "A Reinforcement Learning (PPO) agent recommends optimal tree planting locations with multi-objective goals: temperature reduction + flood mitigation + green equity.",
-    metric: "Multi-Objective Optimization",
-=======
     desc: "Greedy RL Agent recommends optimal tree planting locations with multi-objective reward: heat reduction (−0.5–1.5°C), flood mitigation (3–11%), and equity improvement (+2–8 pts) per tree.",
     metric: "Multi-Objective Greedy Agent",
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
   },
 ];
 
@@ -195,12 +175,8 @@ export default function About() {
             className="text-lg md:text-xl text-base-400 max-w-2xl mx-auto leading-relaxed"
           >
             An AI-powered WebGIS platform for sustainable urban planning.
-<<<<<<< HEAD
-            We don't just visualize problems — we recommend optimal solutions.
-=======
-            We don't just visualize the problem — we recommend optimal
+            We don&apos;t just visualize the problem — we recommend optimal
             solutions.
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
           </motion.p>
 
           <motion.p
@@ -229,33 +205,19 @@ export default function About() {
                 </span>
               </h2>
               <p className="text-base-400 leading-relaxed">
-<<<<<<< HEAD
-                Major Indonesian cities face serious ecosystem pressures: Urban
-                Heat Islands, periodic flood risk, and unequal access to green
-                open spaces.
-=======
                 Major Indonesian cities face serious ecosystem pressures:
                 Urban Heat Islands, periodic flood risk, and unequal access
                 to green open spaces.
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
               </p>
               <p className="text-base-400 leading-relaxed">
                 Existing tools are{" "}
                 <strong className="text-white">descriptive</strong> or{" "}
                 <strong className="text-white">predictive</strong> — they show
-<<<<<<< HEAD
-                the problem, but don't answer the most important question:
-              </p>
-              <blockquote className="border-l-2 border-primary-500 pl-4 py-2 text-white font-medium italic">
-                &quot;Where should we act, and what action delivers the greatest
-                impact?&quot;
-=======
                 the problem, but fail to answer the most important question:
               </p>
               <blockquote className="border-l-2 border-primary-500 pl-4 py-2 text-white font-medium italic">
                 &quot;Where should we act, and what action delivers the
                 greatest impact?&quot;
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
               </blockquote>
             </motion.div>
 
@@ -266,39 +228,22 @@ export default function About() {
                     {[
                       {
                         label: "Urban Heat Island",
-<<<<<<< HEAD
-                        detail: "Surface temps 1–7°C higher in urban zones",
-=======
                         detail: "Temperatures 1–7°C higher in urban areas",
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
                         color: "bg-red-500",
                       },
                       {
                         label: "Periodic Flood Risk",
-<<<<<<< HEAD
-                        detail: "Poor drainage + extreme rainfall events",
-=======
                         detail: "Poor drainage + extreme rainfall",
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
                         color: "bg-blue-500",
                       },
                       {
                         label: "Green Space Inequality",
-<<<<<<< HEAD
-                        detail: 'Dense neighborhoods = "Green Deserts"',
-                        color: "bg-emerald-500",
-                      },
-                      {
-                        label: "Reactive Decision Making",
-                        detail: "Decisions based on intuition, not data",
-=======
                         detail: 'Dense neighborhoods = "Green Desert"',
                         color: "bg-emerald-500",
                       },
                       {
                         label: "Non-Proactive Tools",
                         detail: "Intuition-based decisions, not data-driven",
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
                         color: "bg-amber-500",
                       },
                     ].map((item) => (
@@ -402,15 +347,9 @@ export default function About() {
                 </span>
               </h2>
               <p className="text-base-400 max-w-xl mx-auto text-sm">
-<<<<<<< HEAD
-                Surabaya was selected as the pilot city based on data
-                availability, problem relevance, and an active geospatial
-                community.
-=======
                 The platform supports dynamic city search via Nominatim
                 Geocoder. Surabaya is the default city with the most complete
                 raster TIF data coverage.
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
               </p>
             </motion.div>
 
@@ -419,21 +358,12 @@ export default function About() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {[
-<<<<<<< HEAD
-                      { label: "City", value: "Surabaya" },
-                      { label: "Grid Resolution", value: "100m × 100m" },
-                      { label: "Satellite Data", value: "Landsat 8/9" },
-                      { label: "UHI Relevance", value: "Very High" },
-                      { label: "Flood Risk", value: "Very High" },
-                      { label: "OSM Coverage", value: "Complete" },
-=======
                       { label: "Default City", value: "Surabaya" },
                       { label: "Grid Resolution", value: "300–500m" },
                       { label: "Weather Data", value: "Open-Meteo" },
                       { label: "Population", value: "WorldPop TIF" },
                       { label: "Land Cover", value: "ESA WorldCover" },
                       { label: "Multi-City", value: "Dynamic" },
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
                     ].map((item) => (
                       <div key={item.label} className="text-center p-3">
                         <p className="text-2xl font-semibold text-white mb-1">
@@ -469,11 +399,7 @@ export default function About() {
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
               A modern full-stack architecture designed for performance,
-<<<<<<< HEAD
-              scalability, and a premium user experience.
-=======
               scalability, and premium user experience.
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
             </p>
           </motion.div>
 
@@ -531,12 +457,7 @@ export default function About() {
               </span>
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
-<<<<<<< HEAD
-              A small team with a big focus — 3 engineers from diverse
-              disciplines.
-=======
               A small team with big focus — 3 engineers across multiple disciplines.
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
             </p>
           </motion.div>
 
@@ -590,13 +511,8 @@ export default function About() {
             </span>
           </h2>
           <p className="text-base-400 text-lg">
-<<<<<<< HEAD
-            Explore the interactive map, run AI simulations, and see how data
-            drives real decisions.
-=======
             Explore interactive maps, run AI simulations, and see how
             data drives real decisions.
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link to="/map">
