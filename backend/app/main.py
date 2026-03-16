@@ -3,11 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import httpx
 from app.api import endpoints
+from app.api import simulation
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup: create shared httpx client
-    app.state.client = httpx.AsyncClient(timeout=15.0)
+    app.state.client = httpx.AsyncClient(timeout=30.0)
     yield
     # Teardown: close client
     await app.state.client.aclose()
@@ -28,6 +29,7 @@ app.add_middleware(
 )
 
 app.include_router(endpoints.router, prefix="/api")
+app.include_router(simulation.router, prefix="/api")
 
 @app.get("/")
 def read_root():

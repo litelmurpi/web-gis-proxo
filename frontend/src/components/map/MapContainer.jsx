@@ -93,6 +93,7 @@ export default function MapContainer({
   activeLayer = "heat",
   simulationTrees = [],
   showBeforeAfter = false,
+  gridAfter = null,
   cityQuery = null,
   onLoadingChange = () => {},
 }) {
@@ -101,7 +102,7 @@ export default function MapContainer({
   const [lng, setLng] = useState(112.7688);
   const [lat, setLat] = useState(-7.2504);
   const [zoom, setZoom] = useState(12);
-  const { setCityGeoJSON } = useLayer();
+  const { cityGeoJSON, setCityGeoJSON } = useLayer();
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -281,6 +282,19 @@ export default function MapContainer({
       map.current.once("idle", fetchCityData);
     }
   }, [cityQuery]);
+
+  // Effect to handle swapping to the 'After' grid when compare is enabled
+  useEffect(() => {
+    if (!map.current || !map.current.getSource("urban-grid")) return;
+
+    // Use context cityGeoJSON object if viewing 'before' (original)
+    // Use simulation gridAfter object if viewing 'after'
+    const targetGeoJSON = showBeforeAfter && gridAfter ? gridAfter : cityGeoJSON;
+    
+    if (targetGeoJSON) {
+      map.current.getSource("urban-grid").setData(targetGeoJSON);
+    }
+  }, [showBeforeAfter, gridAfter, cityGeoJSON]);
 
   // Update map layer paint properties dynamically whenever the activeLayer prop changes
   useEffect(() => {

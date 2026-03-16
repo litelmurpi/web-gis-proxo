@@ -79,11 +79,21 @@ export const MapService = {
 
 export const SimulationService = {
   /**
-   * Triggers a fast static simulation run (Non-WebSocket).
-   * Used as fallback or specific single-step calculation.
-   * @param {Object} config - { city_id, budget, weights: { heat, flood, equity, cost } }
+   * Triggers a full RL simulation run.
+   * @param {Object} config - { city, budget, weights: { heat, flood, equity, cost } }
+   * @returns {Promise<Object>} Simulation results with before/after metrics, steps, trees GeoJSON
    */
-  triggerRun: (config) => api.post(`/simulate`, config),
+  triggerRun: (config) =>
+    api.post(`/simulate`, config, { timeout: 45000 }),
+
+  /**
+   * Triggers a quick re-simulation using cached grid data.
+   * Skips geocoding and data fetching — only re-runs RL agent.
+   * @param {Object} config - { city, budget, weights: { heat, flood, equity, cost } }
+   * @returns {Promise<Object>} Simulation results
+   */
+  triggerQuick: (config) =>
+    api.post(`/simulate/quick`, config, { timeout: 30000 }),
 };
 
 export default api;
