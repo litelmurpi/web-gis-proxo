@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UrbanInsight AI — Tech & Roadmap Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #09090f;
+      color: #e2e2f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 48px 32px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #6b6b8a;
+      margin-bottom: 56px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .section {
+      max-width: 1100px;
+      margin: 0 auto 72px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6366f1;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 999px;
+      padding: 4px 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 28px;
+    }
+
+    .diagram-card {
+      background: #111118;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px;
+      padding: 40px 32px;
+      overflow-x: auto;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Keyboard nav */
+    .nav {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .nav button {
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: #a5b4fc;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav button:hover {
+      background: rgba(99,102,241,0.3);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<h1>UrbanInsight AI</h1>
+<p class="subtitle">Technical Diagrams — Demo Video Reference</p>
+
+<!-- ══════════════════════════════════
+     SECTION 1: TECH EXPLANATION
+     ══════════════════════════════════ -->
+<div class="section" id="tech">
+  <div class="section-label">⚙️ Section 1</div>
+  <h2 class="section-title">Tech Explanation — System Architecture Flow</h2>
+  <div class="diagram-card">
+    <div class="mermaid">
+flowchart TD
+    subgraph EXTERNAL ["🌍 External Data Sources"]
+        A1["Open-Meteo API\nTemperature · Rain · Soil Moisture"]
+        A2["OSM Overpass API\nBuildings · Parks · Water Bodies"]
+        A3["Nominatim API\nCity Boundary Polygon"]
+    end
+
+    subgraph BACKEND ["⚙️ Backend — FastAPI (Python)"]
+        B1["Geocoder Service\nResolve city name → boundary polygon"]
+        B2["Grid Generator — GeoPandas\nClip 100m spatial grid to city polygon"]
+        B3["Microclimate Engine — NumPy\nCompute LST · Flood Score · Equity Score per cell"]
+        B4["Greedy RL Agent\nMulti-objective tree placement optimizer\nHeat 35% · Flood 30% · Equity 25%"]
+        B5["TTL Cache\nGeocoder 24h · Weather 10min · OSM 1h"]
+    end
+
+    subgraph FRONTEND ["🖥️ Frontend — React 19 + MapLibre GL JS"]
+        C1["Map Explorer\nChoropleth layers · Hover tooltips"]
+        C2["Analytics Dashboard\nRecharts: Radar · Histogram · KPI"]
+        C3["RL Simulation View\nReal-time tree animation · Before/After"]
+        C4["Framer Motion + GSAP\nAnimations & transitions"]
+    end
+
+    A1 --> B3
+    A2 --> B2
+    A3 --> B1
+    B1 --> B2
+    B2 --> B3
+    B3 --> B4
+    B3 --> B5
+    B4 --> B5
+    B5 --> C1
+    B5 --> C2
+    B4 --> C3
+    C1 & C2 & C3 --> C4
+
+    style EXTERNAL fill:#0f1729,stroke:#1e3a5f,color:#93c5fd
+    style BACKEND fill:#111118,stroke:#312e81,color:#c7d2fe
+    style FRONTEND fill:#0d1f12,stroke:#14532d,color:#86efac
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 2: EXPECTED IMPACT
+     ══════════════════════════════════ -->
+<div class="section" id="impact">
+  <div class="section-label">🌱 Section 2</div>
+  <h2 class="section-title">Expected Impact</h2>
+  <div class="diagram-card">
+    <div class="mermaid">
+flowchart LR
+    PLATFORM["🏙️ UrbanInsight AI\nPrescriptive Analytics Platform"]
+
+    PLATFORM --> H["🌡️ Heat Reduction\n−0.5 to −1.5°C\nper planted area"]
+    PLATFORM --> F["🌊 Flood Mitigation\n−3% to −11%\nflood risk score"]
+    PLATFORM --> G["🌿 Green Equity\n+2 to +8 pts\nequity index"]
+    PLATFORM --> D["📊 Data-Driven Decisions\nReplaces intuition\nwith AI recommendations"]
+
+    H --> U1["👥 Communities\nCooler, safer neighborhoods"]
+    F --> U1
+    G --> U2["🏛️ Government / BAPPEDA\nTargeted budget allocation"]
+    D --> U2
+    D --> U3["🎓 Researchers\nReplicable geospatial dataset"]
+    G --> U4["📰 NGOs / Journalists\nTransparent advocacy data"]
+
+    U1 & U2 & U3 & U4 --> OUTCOME["✅ Outcome\nSustainable, Inclusive\nand Climate-Resilient Cities"]
+
+    style PLATFORM fill:#1e1b4b,stroke:#4338ca,color:#c7d2fe
+    style OUTCOME fill:#052e16,stroke:#15803d,color:#86efac
+    style H fill:#3b0404,stroke:#991b1b,color:#fca5a5
+    style F fill:#03234b,stroke:#1d4ed8,color:#93c5fd
+    style G fill:#052e16,stroke:#15803d,color:#86efac
+    style D fill:#1e1b4b,stroke:#4338ca,color:#a5b4fc
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 3: FUTURE DEV ROADMAP
+     ══════════════════════════════════ -->
+<div class="section" id="roadmap">
+  <div class="section-label">🚀 Section 3</div>
+  <h2 class="section-title">Future Development Roadmap</h2>
+  <div class="diagram-card">
+    <div class="mermaid">
+timeline
+    title UrbanInsight AI — Development Roadmap
+
+    section v1 — Current ✅
+        Live Now    : Interactive Map Explorer (Heat · Flood · Equity · Population)
+                    : Greedy RL Tree Placement Simulation
+                    : Real-time Open-Meteo + OSM data pipeline
+                    : Analytics Dashboard (Recharts)
+                    : Fully responsive — Desktop · Tablet · Mobile
+
+    section v2 — Near Term
+        Q2 2025     : Export results as GeoJSON and CSV
+                    : PostgreSQL + PostGIS persistent database
+                    : IoT sensor integration for ground-truth temperature data
+                    : User authentication and saved city sessions
+
+    section v3 — Mid Term
+        Q4 2025     : Full PPO deep RL agent for long-horizon planning
+                    : Multi-city comparison dashboard
+                    : Public API access for BAPPEDA and research platforms
+                    : Automated weekly city risk index updates
+
+    section v4 — Long Term
+        2026        : National Green Equity Index — public real-time ranking
+                    : Community heat hotspot reporting layer
+                    : Native iOS and Android mobile application
+                    : International city support beyond Indonesia
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <button onclick="document.getElementById('tech').scrollIntoView({behavior:'smooth'})">⚙️ Tech</button>
+  <button onclick="document.getElementById('impact').scrollIntoView({behavior:'smooth'})">🌱 Impact</button>
+  <button onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">🚀 Roadmap</button>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background: '#09090f',
+      primaryColor: '#312e81',
+      primaryTextColor: '#e0e7ff',
+      primaryBorderColor: '#4338ca',
+      lineColor: '#4b5563',
+      secondaryColor: '#1e1b4b',
+      tertiaryColor: '#111118',
+      nodeBorder: '#4338ca',
+      clusterBkg: '#111118',
+      titleColor: '#a5b4fc',
+      edgeLabelBackground: '#09090f',
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+    },
+    flowchart: {
+      curve: 'basis',
+      padding: 20,
+    },
+  });
+</script>
+
+</body>
+</html>

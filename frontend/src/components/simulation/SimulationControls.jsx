@@ -35,7 +35,7 @@ export default function SimulationControls({
   const disabled = isRunning || isLoading;
 
   return (
-    <div className="bg-base-950/85 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-5 pointer-events-auto">
+    <div className="bg-base-950/85 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl w-full p-5 pointer-events-auto">
       
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-primary-500/10 rounded-lg border border-primary-500/20">
