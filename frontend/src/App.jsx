@@ -34,7 +34,7 @@ function AppLayout() {
         <Navbar />
         <div className="flex flex-1 pt-16 overflow-hidden">
           
-          <Sidebar className="hidden lg:flex w-72 border-r border-white/5 bg-base-950 shrink-0" />
+          <Sidebar />
           <main className="flex-1 relative bg-base-900 border-l border-white/5">
             <Suspense fallback={<PageSkeleton />}>
               <Outlet />

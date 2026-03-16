@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -24,26 +24,6 @@ import {
 import EmptyState from "../components/common/EmptyState";
 import { AnalyticsService } from "../services/api";
 
-<<<<<<< HEAD
-const districtData = [
-  { name: "Menteng", heat: 85, flood: 30, population: 15 },
-  { name: "Kebayoran", heat: 65, flood: 60, population: 20 },
-  { name: "Kelapa Gading", heat: 70, flood: 90, population: 18 },
-  { name: "Cilandak", heat: 60, flood: 40, population: 12 },
-  { name: "Tebet", heat: 75, flood: 55, population: 22 },
-];
-
-const trendData = [
-  { year: "2024", temp: 34.2, projected: 34.2 },
-  { year: "2025", temp: 34.5, projected: 33.8 },
-  { year: "2026", temp: 34.8, projected: 33.1 },
-  { year: "2027", temp: 35.1, projected: 32.5 },
-  { year: "2028", temp: 35.5, projected: 31.8 },
-];
-
-=======
-/* ───── Custom Tooltip ───── */
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -66,20 +46,17 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-/* ───── Helpers ───── */
 function computeStats(features) {
   if (!features || features.length === 0) return null;
 
   const props = features.map((f) => f.properties);
   const count = props.length;
 
-  // Averages
   const avgLst = props.reduce((s, p) => s + (p.lst || 0), 0) / count;
   const avgFlood = props.reduce((s, p) => s + (p.floodScore || 0), 0) / count;
   const avgEquity = props.reduce((s, p) => s + (p.equityScore || 0), 0) / count;
   const totalPop = props.reduce((s, p) => s + (p.population || 0), 0);
 
-  // Extremes
   const maxLstCell = props.reduce((max, p) =>
     (p.lst || 0) > (max.lst || 0) ? p : max
   );
@@ -90,7 +67,6 @@ function computeStats(features) {
     (p.equityScore || 100) < (min.equityScore || 100) ? p : min
   );
 
-  // Risk distribution buckets
   const bucketize = (value, thresholds) => {
     if (value >= thresholds[2]) return "Critical";
     if (value >= thresholds[1]) return "High";
@@ -98,7 +74,12 @@ function computeStats(features) {
     return "Low";
   };
 
-  const riskDist = { Low: { heat: 0, flood: 0 }, Medium: { heat: 0, flood: 0 }, High: { heat: 0, flood: 0 }, Critical: { heat: 0, flood: 0 } };
+  const riskDist = {
+    Low: { heat: 0, flood: 0 },
+    Medium: { heat: 0, flood: 0 },
+    High: { heat: 0, flood: 0 },
+    Critical: { heat: 0, flood: 0 },
+  };
   props.forEach((p) => {
     const heatBucket = bucketize(p.lst || 0, [30, 33, 36]);
     const floodBucket = bucketize(p.floodScore || 0, [30, 50, 70]);
@@ -112,20 +93,23 @@ function computeStats(features) {
     flood: riskDist[label].flood,
   }));
 
-  // LST distribution (histogram)
   const lstMin = Math.floor(Math.min(...props.map((p) => p.lst || 0)));
   const lstMax = Math.ceil(Math.max(...props.map((p) => p.lst || 0)));
   const bins = [];
-  const binSize = 1; // 1°C bins
-  for (let t = lstMin; t < lstMax; t += binSize) {
+  for (let t = lstMin; t < lstMax; t += 1) {
     const cellsInBin = props.filter(
-      (p) => (p.lst || 0) >= t && (p.lst || 0) < t + binSize
+      (p) => (p.lst || 0) >= t && (p.lst || 0) < t + 1
     ).length;
-    bins.push({ range: `${t}–${t + binSize}°C`, cells: cellsInBin, temp: t });
+    bins.push({ range: `${t}–${t + 1}°C`, cells: cellsInBin, temp: t });
   }
 
-  // Equity distribution
-  const equityDist = { "0–20": 0, "20–40": 0, "40–60": 0, "60–80": 0, "80–100": 0 };
+  const equityDist = {
+    "0–20": 0,
+    "20–40": 0,
+    "40–60": 0,
+    "60–80": 0,
+    "80–100": 0,
+  };
   props.forEach((p) => {
     const eq = p.equityScore || 0;
     if (eq < 20) equityDist["0–20"]++;
@@ -154,7 +138,6 @@ function computeStats(features) {
   };
 }
 
-/* ───── KPI Card ───── */
 function KpiCard({ icon: Icon, iconColor, iconBg, label, value, unit, detail, detailColor }) {
   if (!Icon) return null;
   return (
@@ -176,7 +159,8 @@ function KpiCard({ icon: Icon, iconColor, iconBg, label, value, unit, detail, de
   );
 }
 
-/* ───── Main Component ───── */
+const DEFAULT_CITY = "Surabaya";
+
 export default function Analytics() {
   const [searchInput, setSearchInput] = useState("");
   const [cityName, setCityName] = useState(null);
@@ -184,15 +168,10 @@ export default function Analytics() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    const query = searchInput.trim();
-    if (!query) return;
-
+  const fetchCity = async (query) => {
     setIsLoading(true);
     setError(null);
     setGeoData(null);
-
     try {
       const data = await AnalyticsService.getCityData(query);
       if (data.error) throw new Error(data.error);
@@ -205,16 +184,26 @@ export default function Analytics() {
     }
   };
 
+  useEffect(() => {
+    fetchCity(DEFAULT_CITY);
+  }, []);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    const query = searchInput.trim();
+    if (!query) return;
+
+    fetchCity(query);
+  };
+
   const stats = useMemo(() => {
     if (!geoData?.geojson?.features) return null;
     return computeStats(geoData.geojson.features);
   }, [geoData]);
 
-  /* ── Empty / Initial State ── */
   if (!stats && !isLoading) {
     return (
       <div className="min-h-full w-full bg-base-950 p-6 lg:p-10 flex flex-col">
-        {/* Search bar always visible */}
         <div className="mb-8">
           <h1 className="text-3xl font-heading font-semibold text-white tracking-tight mb-1">
             City{" "}
@@ -270,7 +259,6 @@ export default function Analytics() {
     );
   }
 
-  /* ── Loading State ── */
   if (isLoading) {
     return (
       <div className="min-h-full w-full bg-base-950 p-6 lg:p-10 flex flex-col items-center justify-center gap-4">
@@ -285,17 +273,9 @@ export default function Analytics() {
     );
   }
 
-  /* ── Data Loaded ── */
   return (
-<<<<<<< HEAD
     <div className="h-full w-full bg-base-950 p-6 lg:p-10 overflow-auto">
-      
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-=======
-    <div className="w-full bg-base-950 p-6 lg:p-10">
-      {/* Header + Search */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
         <div>
           <h1 className="text-3xl font-heading font-semibold text-white tracking-tight">
             City{" "}
@@ -335,60 +315,6 @@ export default function Analytics() {
         </form>
       </div>
 
-<<<<<<< HEAD
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-base-900 border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
-            <AlertTriangle className="w-16 h-16 text-red-500" />
-          </div>
-          <p className="text-base-400 text-xs font-medium uppercase tracking-wider mb-2">
-            Highest Heat Risk
-          </p>
-          <p className="text-3xl items-baseline flex gap-1 font-semibold text-white">
-            Menteng
-          </p>
-          <p className="text-red-400 text-sm mt-2 font-mono bg-red-500/10 inline-block px-2 py-0.5 rounded">
-            LST: 42.5°C
-          </p>
-        </div>
-
-        <div className="bg-base-900 border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
-            <AlertTriangle className="w-16 h-16 text-blue-500" />
-          </div>
-          <p className="text-base-400 text-xs font-medium uppercase tracking-wider mb-2">
-            Highest Flood Risk
-          </p>
-          <p className="text-3xl items-baseline flex gap-1 font-semibold text-white">
-            Kelapa Gading
-          </p>
-          <p className="text-blue-400 text-sm mt-2 font-mono bg-blue-500/10 inline-block px-2 py-0.5 rounded">
-            90% Severity
-          </p>
-        </div>
-
-        <div className="bg-base-900 border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
-            <TrendingDown className="w-16 h-16 text-emerald-500" />
-          </div>
-          <p className="text-base-400 text-xs font-medium uppercase tracking-wider mb-2">
-            Target Mitigation
-          </p>
-          <p className="text-3xl flex items-baseline gap-1 font-semibold text-white">
-            -2.5 <span className="text-base-400 text-sm">°C</span>
-          </p>
-          <p className="text-emerald-400 text-sm mt-2 font-mono bg-emerald-500/10 inline-block px-2 py-0.5 rounded">
-            Projected by 2028
-          </p>
-        </div>
-      </div>
-
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-=======
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <KpiCard
           icon={ThermometerSun}
@@ -431,10 +357,7 @@ export default function Analytics() {
         />
       </div>
 
-      {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Risk Distribution Bar Chart */}
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
         <div className="bg-base-900 border border-white/5 p-6 rounded-2xl shadow-xl">
           <h3 className="text-white font-semibold text-sm mb-1">
             Risk Distribution
@@ -490,11 +413,6 @@ export default function Analytics() {
           </div>
         </div>
 
-<<<<<<< HEAD
-        
-=======
-        {/* LST Distribution */}
->>>>>>> 8e995918ff77d568520e5809681fe83bbaf7d5ef
         <div className="bg-base-900 border border-white/5 p-6 rounded-2xl shadow-xl">
           <h3 className="text-white font-semibold text-sm mb-1">
             Temperature Distribution
@@ -549,7 +467,6 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* Equity Distribution */}
       <div className="bg-base-900 border border-white/5 p-6 rounded-2xl shadow-xl">
         <h3 className="text-white font-semibold text-sm mb-1">
           Green Equity Distribution

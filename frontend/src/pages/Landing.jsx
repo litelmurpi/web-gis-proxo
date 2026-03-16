@@ -256,79 +256,69 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-min md:auto-rows-[250px]"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
           >
-            
-            <motion.div variants={fadeIn} className="col-span-1 md:col-span-2">
-              <Card className="h-full">
-                <CardHeader>
-                  <ThermometerSun className="w-6 h-6 text-red-500 mb-2" />
-                  <CardTitle className="text-xl">
-                    Urban Heat Prediction
-                  </CardTitle>
-                  <CardDescription>
+            <motion.div variants={fadeIn} className="md:col-span-2">
+              <Card className="h-full min-h-[180px]">
+                <CardContent className="flex flex-col p-8">
+                  <ThermometerSun className="w-7 h-7 text-red-500 mb-4" />
+                  <CardTitle className="text-xl mb-2">Urban Heat Prediction</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
                     Computing Land Surface Temperature (LST) per grid cell
                     using Open-Meteo weather, GHSL building data, and ESA WorldCover.
                   </CardDescription>
-                </CardHeader>
+                </CardContent>
               </Card>
             </motion.div>
 
-            
-            <motion.div variants={fadeIn} className="col-span-1">
-              <Card className="h-full">
-                <CardHeader>
-                  <Waves className="w-6 h-6 text-blue-500 mb-2" />
-                  <CardTitle className="text-xl">Flood Risk Modeling</CardTitle>
-                  <CardDescription>
+            <motion.div variants={fadeIn}>
+              <Card className="h-full min-h-[180px]">
+                <CardContent className="flex flex-col p-8">
+                  <Waves className="w-7 h-7 text-blue-500 mb-4" />
+                  <CardTitle className="text-xl mb-2">Flood Risk Modeling</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
                     Composite scoring based on building density, water proximity,
                     and real-time weather data from Open-Meteo.
                   </CardDescription>
-                </CardHeader>
+                </CardContent>
               </Card>
             </motion.div>
 
-            
-            <motion.div variants={fadeIn} className="col-span-1">
-              <Card className="h-full">
-                <CardHeader>
-                  <Users className="w-6 h-6 text-emerald-500 mb-2" />
-                  <CardTitle className="text-xl">Green Equity Index</CardTitle>
-                  <CardDescription>
+            <motion.div variants={fadeIn}>
+              <Card className="h-full min-h-[180px]">
+                <CardContent className="flex flex-col p-8">
+                  <Users className="w-7 h-7 text-emerald-500 mb-4" />
+                  <CardTitle className="text-xl mb-2">Green Equity Index</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
                     Measuring spatial inequality of urban green space access
                     per grid cell across the city.
                   </CardDescription>
-                </CardHeader>
+                </CardContent>
               </Card>
             </motion.div>
 
-            
-            <motion.div variants={fadeIn} className="col-span-1 md:col-span-2">
-              <Card className="h-full group overflow-hidden border-primary-500/30 bg-primary-950/20">
-                <div className="absolute inset-0 bg-linear-to-br from-primary-600/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
-                <CardHeader className="relative z-10 h-full flex flex-col justify-center">
-                  <div className="flex items-center gap-3 mb-3">
+            <motion.div variants={fadeIn} className="md:col-span-2">
+              <Card className="h-full min-h-[200px] relative group overflow-hidden border-primary-500/30 bg-primary-950/20">
+                <div className="absolute inset-0 bg-linear-to-br from-primary-600/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <CardContent className="flex flex-col p-8 relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
                     <Sprout className="w-8 h-8 text-primary-400" />
                     <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-semibold bg-primary-500/20 text-primary-300 rounded-sm border border-primary-500/30">
                       Core Innovation
                     </span>
                   </div>
-                  <CardTitle className="text-2xl mb-2">
-                    RL Optimal Tree Placement
-                  </CardTitle>
-                  <CardDescription className="text-base max-w-lg text-base-300">
+                  <CardTitle className="text-2xl mb-3">RL Optimal Tree Placement</CardTitle>
+                  <CardDescription className="text-base max-w-lg text-base-300 leading-relaxed">
                     A Greedy RL Agent that recommends optimal planting locations
                     to simultaneously reduce heat (−0.5–1.5°C), mitigate floods
-                    (3–11%), and improve green equity (+2–8 pts) under budget
-                    constraints.
+                    (3–11%), and improve green equity (+2–8 pts) under budget constraints.
                   </CardDescription>
-                </CardHeader>
+                </CardContent>
               </Card>
             </motion.div>
           </motion.div>

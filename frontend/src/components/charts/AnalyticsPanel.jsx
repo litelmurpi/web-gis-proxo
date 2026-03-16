@@ -10,6 +10,7 @@ import {
 import { useLayer } from "../../context/LayerContext";
 import { BarChart3, ChevronDown, ChevronUp, X } from "lucide-react";
 import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function computeCityMetrics(geojson) {
   const features = geojson?.features || [];
@@ -18,15 +19,13 @@ function computeCityMetrics(geojson) {
   const totals = features.reduce(
     (acc, f) => {
       const p = f.properties;
-      
       const heatVal = p.lst != null
-        ? Math.max(0, Math.min(100, ((p.lst - 26) / 10) * 100)) 
+        ? Math.max(0, Math.min(100, ((p.lst - 26) / 10) * 100))
         : (p.heatScore || 0);
       acc.heat += heatVal;
       acc.flood += (p.floodScore || 0);
       acc.equity += (p.equityScore || 0);
       acc.totalPop += (p.population || 0);
-      
       acc.popDensity += Math.min(100, ((p.population || 0) / 3500) * 100);
       return acc;
     },
@@ -34,14 +33,14 @@ function computeCityMetrics(geojson) {
   );
 
   return [
-    { metric: "Heat Risk",   value: Math.round(totals.heat / count),       fullMark: 100, display: null },
-    { metric: "Flood Risk",  value: Math.round(totals.flood / count),      fullMark: 100, display: null },
-    { metric: "Green Equity",value: Math.round(totals.equity / count),     fullMark: 100, display: null },
+    { metric: "Heat Risk",    value: Math.round(totals.heat / count),      fullMark: 100, display: null },
+    { metric: "Flood Risk",   value: Math.round(totals.flood / count),     fullMark: 100, display: null },
+    { metric: "Green Equity", value: Math.round(totals.equity / count),    fullMark: 100, display: null },
     {
       metric: "Population",
-      value: Math.round(totals.popDensity / count), 
+      value: Math.round(totals.popDensity / count),
       fullMark: 100,
-      display: totals.totalPop.toLocaleString(),    
+      display: totals.totalPop.toLocaleString(),
       displayUnit: "residents",
     },
   ];
@@ -72,6 +71,38 @@ function CustomTooltip({ active, payload }) {
   );
 }
 
+const panelVariants = {
+  hidden: { opacity: 0, x: 40, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    x: 40,
+    scale: 0.96,
+    transition: { duration: 0.2, ease: "easeIn" },
+  },
+};
+
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.92, y: 20 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.92,
+    y: 20,
+    transition: { duration: 0.2, ease: "easeIn" },
+  },
+};
+
 export default function AnalyticsPanel({ isOpen, onClose }) {
   const { activeLayer, cityGeoJSON } = useLayer();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -82,78 +113,102 @@ export default function AnalyticsPanel({ isOpen, onClose }) {
   const strokeColor = radarStrokeColors[activeLayer] || "#6366f1";
   const fillColor = radarFillColors[activeLayer] || "rgba(99, 102, 241, 0.15)";
 
-  
   const mobileModal = (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-    >
-      <div className="bg-base-950 border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col">
-        
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/2">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-primary-500/10 rounded-lg border border-primary-500/20">
-              <BarChart3 className="w-4 h-4 text-primary-400" />
-            </div>
-            <span className="text-sm font-semibold text-white">
-              City Analytics
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-base-400 hover:text-white hover:bg-white/10 transition-colors"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="mobile-backdrop"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm lg:hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <motion.div
+            key="mobile-panel"
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="bg-base-950 border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col"
           >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        
-        <div className="p-4">
-          <ChartContent
-            cityMetrics={cityMetrics}
-            strokeColor={strokeColor}
-            fillColor={fillColor}
-          />
-        </div>
-      </div>
-    </div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/2">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-primary-500/10 rounded-lg border border-primary-500/20">
+                  <BarChart3 className="w-4 h-4 text-primary-400" />
+                </div>
+                <span className="text-sm font-semibold text-white">City Analytics</span>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-lg text-base-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4">
+              <ChartContent
+                cityMetrics={cityMetrics}
+                strokeColor={strokeColor}
+                fillColor={fillColor}
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 
-  
   const desktopPanel = (
-    <div className="hidden lg:block absolute top-4 right-16 z-10 pointer-events-auto">
-      <div className="bg-base-950/85 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl w-72 overflow-hidden">
-        
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full flex items-center justify-between px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors outline-none"
-        >
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-primary-500/10 rounded-lg border border-primary-500/20">
-              <BarChart3 className="w-4 h-4 text-primary-400" />
+    <AnimatePresence>
+      <motion.div
+        key="desktop-panel"
+        variants={panelVariants}
+        initial="hidden"
+        animate="visible"
+        className="hidden lg:block absolute top-4 right-16 z-10 pointer-events-auto"
+      >
+        <div className="bg-base-950/85 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl w-72 overflow-hidden">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="w-full flex items-center justify-between px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors outline-none"
+          >
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-primary-500/10 rounded-lg border border-primary-500/20">
+                <BarChart3 className="w-4 h-4 text-primary-400" />
+              </div>
+              <span className="text-sm font-semibold text-white">City Analytics</span>
             </div>
-            <span className="text-sm font-semibold text-white">
-              City Analytics
-            </span>
-          </div>
-          {isCollapsed ? (
-            <ChevronDown className="w-4 h-4 text-base-400" />
-          ) : (
-            <ChevronUp className="w-4 h-4 text-base-400" />
-          )}
-        </button>
+            {isCollapsed ? (
+              <ChevronDown className="w-4 h-4 text-base-400" />
+            ) : (
+              <ChevronUp className="w-4 h-4 text-base-400" />
+            )}
+          </button>
 
-        
-        {!isCollapsed && (
-          <div className="p-4">
-            <ChartContent
-              cityMetrics={cityMetrics}
-              strokeColor={strokeColor}
-              fillColor={fillColor}
-            />
-          </div>
-        )}
-      </div>
-    </div>
+          <AnimatePresence>
+            {!isCollapsed && (
+              <motion.div
+                key="chart-body"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="p-4">
+                  <ChartContent
+                    cityMetrics={cityMetrics}
+                    strokeColor={strokeColor}
+                    fillColor={fillColor}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 
   return (
@@ -167,7 +222,6 @@ export default function AnalyticsPanel({ isOpen, onClose }) {
 function ChartContent({ cityMetrics, strokeColor, fillColor }) {
   return (
     <>
-      
       <div className="w-full h-52">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={cityMetrics}>
@@ -188,11 +242,7 @@ function ChartContent({ cityMetrics, strokeColor, fillColor }) {
               stroke={strokeColor}
               fill={fillColor}
               strokeWidth={2}
-              dot={{
-                r: 3,
-                fill: strokeColor,
-                strokeWidth: 0,
-              }}
+              dot={{ r: 3, fill: strokeColor, strokeWidth: 0 }}
               animationDuration={600}
               animationEasing="ease-out"
             />
@@ -201,7 +251,6 @@ function ChartContent({ cityMetrics, strokeColor, fillColor }) {
         </ResponsiveContainer>
       </div>
 
-      
       <div className="grid grid-cols-2 gap-2 mt-3">
         {cityMetrics.map((m) => (
           <div
