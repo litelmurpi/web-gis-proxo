@@ -50,32 +50,32 @@ const modules = [
     color: "text-red-400",
     bg: "bg-red-500/10 border-red-500/20",
     title: "Urban Heat Prediction",
-    desc: "Memprediksi Land Surface Temperature (LST) per grid 100 m menggunakan XGBoost Regressor dari data Landsat 8/9, NDVI, dan kepadatan bangunan.",
-    metric: "MAE < 1.5°C",
+    desc: "Computes Land Surface Temperature (LST) per grid cell using physics-based formula: Open-Meteo base temp + building density (GHSL) × 6°C − green density (ESA WorldCover) × 4°C.",
+    metric: "Real-time LST per Cell",
   },
   {
     icon: Waves,
     color: "text-blue-400",
     bg: "bg-blue-500/10 border-blue-500/20",
     title: "Flood Risk Scoring",
-    desc: "Menghitung probabilitas risiko banjir (0–1.0) per grid menggunakan XGBoost Classifier dengan 9 fitur geospasial termasuk DEM, curah hujan, dan imperviousness.",
-    metric: "AUC-ROC > 0.80",
+    desc: "Computes flood risk score (10–95) via composite scoring: building density × 30 + water proximity × 40 + daily precipitation + soil moisture from Open-Meteo.",
+    metric: "Composite Score 10–95",
   },
   {
     icon: TreePine,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
     title: "Green Equity Index",
-    desc: "Mengukur ketimpangan akses Ruang Terbuka Hijau (RTH) menggunakan modified Gini Coefficient dan K-Means Clustering menjadi 4 klaster.",
-    metric: "Equity Score 0–100",
+    desc: "Measures green space access inequality per grid cell: green density (ESA WorldCover) × 100 + open space bonus. Dense built-up areas with no vegetation receive low scores.",
+    metric: "Equity Score 5–95",
   },
   {
     icon: BrainCircuit,
     color: "text-purple-400",
     bg: "bg-purple-500/10 border-purple-500/20",
     title: "RL Tree Placement",
-    desc: "Agen Reinforcement Learning (PPO) merekomendasikan lokasi penanaman pohon yang optimal dengan multi-objective: penurunan suhu + banjir + green equity.",
-    metric: "Multi-Objective Optimization",
+    desc: "Greedy RL Agent recommends optimal tree planting locations with multi-objective reward: heat reduction (−0.5–1.5°C), flood mitigation (3–11%), and equity improvement (+2–8 pts) per tree.",
+    metric: "Multi-Objective Greedy Agent",
   },
 ];
 
@@ -86,49 +86,50 @@ const techStack = [
     items: [
       "React 19 + Vite",
       "MapLibre GL JS",
-      "Tailwind CSS 4",
-      "Recharts",
-      "GSAP + Framer Motion",
+      "Vanilla CSS (Design System)",
+      "Framer Motion",
+      "Lucide React Icons",
     ],
   },
   {
     category: "Backend & AI",
     icon: Cpu,
     items: [
-      "FastAPI (Python)",
-      "XGBoost Regressor & Classifier",
-      "PPO (Stable-Baselines3)",
-      "WebSocket Streaming",
+      "FastAPI (Python 3.10)",
+      "GeoPandas + Shapely",
+      "Greedy RL Agent (Custom)",
+      "NumPy Vectorized Compute",
+      "Rasterio (TIF Sampling)",
     ],
   },
   {
     category: "Data & Infra",
     icon: Database,
     items: [
-      "Google Earth Engine",
-      "Landsat 8/9 & Sentinel-2",
-      "OpenStreetMap",
-      "Supabase / PostGIS",
-      "Vercel + Railway",
+      "Open-Meteo (Weather API)",
+      "WorldPop (Population TIF)",
+      "GHSL (Building Density TIF)",
+      "ESA WorldCover (Land Use)",
+      "OpenStreetMap / Nominatim",
     ],
   },
 ];
 
 const team = [
   {
-    name: "ML/AI Engineer",
-    role: "Model Development",
-    desc: "XGBoost model training, RL agent (PPO), GEE pipeline",
+    name: "AI / Simulation Engineer",
+    role: "RL Engine & Formulas",
+    desc: "Greedy RL Agent, multi-objective reward function, transition model, microclimate synthesis",
   },
   {
     name: "Backend/Geospatial Engineer",
     role: "API & Data Pipeline",
-    desc: "FastAPI, PostGIS, WebSocket, data preprocessing",
+    desc: "FastAPI, GeoPandas, raster TIF sampling, Open-Meteo & OSM integration",
   },
   {
     name: "Frontend/UI Engineer",
     role: "WebGIS Interface",
-    desc: "React, MapLibre GL, Recharts, design system",
+    desc: "React, MapLibre GL, custom design system, data-driven map styling",
   },
 ];
 
@@ -160,7 +161,7 @@ export default function About() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-medium text-primary-400"
           >
             <Globe className="w-3.5 h-3.5" />
-            Tentang Proyek
+            About the Project
           </motion.div>
 
           <motion.h1
@@ -177,9 +178,9 @@ export default function About() {
             variants={fadeIn}
             className="text-lg md:text-xl text-base-400 max-w-2xl mx-auto leading-relaxed"
           >
-            Platform WebGIS berbasis AI untuk perencanaan kota berkelanjutan.
-            Kami tidak sekadar memvisualisasikan masalah — kami merekomendasikan
-            solusi yang optimal.
+            An AI-powered WebGIS platform for sustainable urban planning.
+            We don't just visualize the problem — we recommend optimal
+            solutions.
           </motion.p>
 
           <motion.p
@@ -203,25 +204,25 @@ export default function About() {
           >
             <motion.div variants={fadeIn} className="space-y-5">
               <h2 className="text-3xl font-semibold">
-                Mengapa{" "}
+                Why{" "}
                 <span className="text-primary-400 font-heading italic font-normal">
                   prescriptive?
                 </span>
               </h2>
               <p className="text-base-400 leading-relaxed">
-                Kota-kota besar Indonesia menghadapi tekanan ekosistem yang
-                serius: Urban Heat Island, risiko banjir periodik, dan
-                ketimpangan akses ruang terbuka hijau.
+                Major Indonesian cities face serious ecosystem pressures:
+                Urban Heat Islands, periodic flood risk, and unequal access
+                to green open spaces.
               </p>
               <p className="text-base-400 leading-relaxed">
-                Tools yang ada saat ini bersifat{" "}
-                <strong className="text-white">deskriptif</strong> atau{" "}
-                <strong className="text-white">prediktif</strong> — menunjukkan
-                masalah, tetapi tidak menjawab pertanyaan paling penting:
+                Existing tools are{" "}
+                <strong className="text-white">descriptive</strong> or{" "}
+                <strong className="text-white">predictive</strong> — they show
+                the problem, but fail to answer the most important question:
               </p>
               <blockquote className="border-l-2 border-primary-500 pl-4 py-2 text-white font-medium italic">
-                &quot;Di mana harus bertindak, dan tindakan apa yang memberikan
-                dampak paling besar?&quot;
+                &quot;Where should we act, and what action delivers the
+                greatest impact?&quot;
               </blockquote>
             </motion.div>
 
@@ -232,22 +233,22 @@ export default function About() {
                     {[
                       {
                         label: "Urban Heat Island",
-                        detail: "Suhu 1–7°C lebih tinggi di kawasan urban",
+                        detail: "Temperatures 1–7°C higher in urban areas",
                         color: "bg-red-500",
                       },
                       {
-                        label: "Risiko Banjir Periodik",
-                        detail: "Drainase buruk + curah hujan ekstrem",
+                        label: "Periodic Flood Risk",
+                        detail: "Poor drainage + extreme rainfall",
                         color: "bg-blue-500",
                       },
                       {
-                        label: "Ketimpangan RTH",
-                        detail: 'Pemukiman padat = "Green Desert"',
+                        label: "Green Space Inequality",
+                        detail: 'Dense neighborhoods = "Green Desert"',
                         color: "bg-emerald-500",
                       },
                       {
-                        label: "Tools Tidak Proaktif",
-                        detail: "Keputusan berbasis intuisi, bukan data",
+                        label: "Non-Proactive Tools",
+                        detail: "Intuition-based decisions, not data-driven",
                         color: "bg-amber-500",
                       },
                     ].map((item) => (
@@ -285,14 +286,14 @@ export default function About() {
             className="text-center space-y-3"
           >
             <h2 className="text-3xl font-semibold">
-              Empat{" "}
+              Four{" "}
               <span className="text-primary-400 font-heading italic font-normal">
-                Modul AI
+                AI Modules
               </span>
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
-              Setiap modul dirancang untuk menangani satu dimensi permasalahan
-              kota, lalu diintegrasikan melalui RL agent.
+              Each module is designed to address one dimension of urban
+              challenges, then integrated through the RL agent.
             </p>
           </motion.div>
 
@@ -347,15 +348,15 @@ export default function About() {
           >
             <motion.div variants={fadeIn} className="text-center space-y-3">
               <h2 className="text-3xl font-semibold">
-                Kota{" "}
+                Pilot{" "}
                 <span className="text-primary-400 font-heading italic font-normal">
-                  Pilot
+                  City
                 </span>
               </h2>
               <p className="text-base-400 max-w-xl mx-auto text-sm">
-                Kota Surabaya dipilih sebagai kota pilot berdasarkan
-                ketersediaan data, relevansi permasalahan, dan komunitas
-                geospasial yang aktif.
+                The platform supports dynamic city search via Nominatim
+                Geocoder. Surabaya is the default city with the most complete
+                raster TIF data coverage.
               </p>
             </motion.div>
 
@@ -364,12 +365,12 @@ export default function About() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {[
-                      { label: "Kota", value: "Surabaya" },
-                      { label: "Grid Resolusi", value: "100m × 100m" },
-                      { label: "Data Satelit", value: "Landsat 8/9" },
-                      { label: "UHI Relevansi", value: "Sangat Tinggi" },
-                      { label: "Flood Risk", value: "Sangat Tinggi" },
-                      { label: "OSM Coverage", value: "Lengkap" },
+                      { label: "Default City", value: "Surabaya" },
+                      { label: "Grid Resolution", value: "300–500m" },
+                      { label: "Weather Data", value: "Open-Meteo" },
+                      { label: "Population", value: "WorldPop TIF" },
+                      { label: "Land Cover", value: "ESA WorldCover" },
+                      { label: "Multi-City", value: "Dynamic" },
                     ].map((item) => (
                       <div key={item.label} className="text-center p-3">
                         <p className="text-2xl font-semibold text-white mb-1">
@@ -405,8 +406,8 @@ export default function About() {
               </span>
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
-              Arsitektur full-stack modern yang dirancang untuk performa,
-              skalabilitas, dan pengalaman pengguna premium.
+              A modern full-stack architecture designed for performance,
+              scalability, and premium user experience.
             </p>
           </motion.div>
 
@@ -459,13 +460,13 @@ export default function About() {
             className="text-center space-y-3"
           >
             <h2 className="text-3xl font-semibold">
-              Tim{" "}
+              Development{" "}
               <span className="text-primary-400 font-heading italic font-normal">
-                Pengembang
+                Team
               </span>
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
-              Tim kecil dengan fokus besar — 3 engineer dari berbagai disiplin.
+              A small team with big focus — 3 engineers across multiple disciplines.
             </p>
           </motion.div>
 
@@ -515,31 +516,31 @@ export default function About() {
           variants={fadeIn}
         >
           <h2 className="text-4xl md:text-5xl font-semibold">
-            Lihat langsung{" "}
+            See it in{" "}
             <span className="text-primary-400 italic font-heading font-normal">
-              aksinya.
+              action.
             </span>
           </h2>
           <p className="text-base-400 text-lg">
-            Jelajahi peta interaktif, jalankan simulasi AI, dan lihat bagaimana
-            data menggerakkan keputusan nyata.
+            Explore interactive maps, run AI simulations, and see how
+            data drives real decisions.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link to="/map">
               <Button size="lg" variant="primary" leftIcon={Map}>
-                Buka Map Explorer
+                Open Map Explorer
               </Button>
             </Link>
             <Link to="/simulation">
               <Button size="lg" variant="ghost" rightIcon={ArrowRight}>
-                Coba Simulasi RL
+                Try RL Simulation
               </Button>
             </Link>
           </div>
 
           <div className="flex items-center justify-center gap-6 pt-4 text-base-500 text-sm">
             <a
-              href="https://github.com"
+              href="https://github.com/litelmurpi/web-gis-proxo"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-white transition-colors"

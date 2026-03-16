@@ -123,7 +123,7 @@ export default function Landing() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-medium text-primary-400 mb-4"
           >
             <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-            UrbanInsight AI v2.0
+            UrbanInsight AI v2.0 — Live
           </motion.div>
 
           <motion.h1
@@ -151,7 +151,7 @@ export default function Landing() {
           >
             <Link to="/map">
               <Button size="lg" leftIcon={Map} className="shadow-primary/20">
-                Launch Map Engine
+                Launch Map Explorer
               </Button>
             </Link>
             <Link to="/about">
@@ -200,7 +200,7 @@ export default function Landing() {
             {[
               {
                 title: "Urban Heat Islands",
-                desc: "Surface temperatures rising 1-7°C in concrete-heavy areas.",
+                desc: "Surface temperatures rising 1-7°C in concrete-heavy areas with low vegetation.",
                 icon: ThermometerSun,
                 color: "text-red-400",
               },
@@ -251,8 +251,8 @@ export default function Landing() {
           >
             <h2 className="text-3xl font-semibold">The Four Pillars</h2>
             <p className="text-base-400 max-w-xl">
-              Combining high-resolution satellite data with tree placement
-              optimization.
+              Combining high-resolution geospatial data with AI-powered tree
+              placement optimization.
             </p>
           </motion.div>
 
@@ -270,11 +270,11 @@ export default function Landing() {
                 <CardHeader>
                   <ThermometerSun className="w-6 h-6 text-red-500 mb-2" />
                   <CardTitle className="text-xl">
-                    Satellite-Based Heat Prediction
+                    Urban Heat Prediction
                   </CardTitle>
                   <CardDescription>
-                    Predicting Land Surface Temperature (LST) per 100m grid
-                    using XGBoost and Landsat 8/9 data.
+                    Computing Land Surface Temperature (LST) per grid cell
+                    using Open-Meteo weather, GHSL building data, and ESA WorldCover.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -287,8 +287,8 @@ export default function Landing() {
                   <Waves className="w-6 h-6 text-blue-500 mb-2" />
                   <CardTitle className="text-xl">Flood Risk Modeling</CardTitle>
                   <CardDescription>
-                    Probabilistic scoring based on elevation, drainage, and
-                    rainfall.
+                    Composite scoring based on building density, water proximity,
+                    and real-time weather data from Open-Meteo.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -301,7 +301,8 @@ export default function Landing() {
                   <Users className="w-6 h-6 text-emerald-500 mb-2" />
                   <CardTitle className="text-xl">Green Equity Index</CardTitle>
                   <CardDescription>
-                    Measuring spatial inequality of urban green spaces.
+                    Measuring spatial inequality of urban green space access
+                    per grid cell across the city.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -322,9 +323,9 @@ export default function Landing() {
                     RL Optimal Tree Placement
                   </CardTitle>
                   <CardDescription className="text-base max-w-lg text-base-300">
-                    A Proximal Policy Optimization (PPO) agent that recommends
-                    optimal planting locations to simultaneously reduce heat,
-                    mitigate floods, and improve green equity under budget
+                    A Greedy RL Agent that recommends optimal planting locations
+                    to simultaneously reduce heat (−0.5–1.5°C), mitigate floods
+                    (3–11%), and improve green equity (+2–8 pts) under budget
                     constraints.
                   </CardDescription>
                 </CardHeader>
@@ -345,8 +346,8 @@ export default function Landing() {
           >
             <h2 className="text-3xl font-semibold mb-4">How It Works</h2>
             <p className="text-base-400">
-              A seamless 3-tier pipeline transforming raw satellite data into
-              actionable insights.
+              A seamless 3-tier pipeline transforming raw geospatial data into
+              actionable recommendations.
             </p>
           </motion.div>
 
@@ -364,17 +365,17 @@ export default function Landing() {
               {
                 icon: Database,
                 title: "Data Ingestion",
-                desc: "GEE, OSM, & BMKG Data",
+                desc: "Open-Meteo, WorldPop, GHSL, ESA WorldCover",
               },
               {
                 icon: BrainCircuit,
                 title: "Geospatial AI",
-                desc: "XGBoost & RL Engine",
+                desc: "Microclimate Synthesis & RL Engine",
               },
               {
                 icon: Globe,
                 title: "Prescriptive WebGIS",
-                desc: "Interactive Simulation",
+                desc: "Interactive Simulation & Maps",
               },
             ].map((step, i) => (
               <motion.div
