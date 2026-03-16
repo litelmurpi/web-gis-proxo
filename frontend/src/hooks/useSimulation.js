@@ -1,18 +1,10 @@
 import { useState, useCallback, useRef } from "react";
 import { SimulationService } from "../services/api";
 
-/**
- * Custom hook for RL tree placement simulation.
- *
- * Connects to the real POST /api/simulate backend endpoint
- * and animates tree placement step-by-step on the map.
- *
- * @returns {Object} state and controls for the simulation
- */
 export function useSimulation() {
-  const [status, setStatus] = useState("idle"); // idle, loading, animating, completed, error
-  const [trees, setTrees] = useState([]); // Array of [lng, lat] for map markers
-  const [gridAfter, setGridAfter] = useState(null); // GeoJSON updated grid for before/after
+  const [status, setStatus] = useState("idle"); 
+  const [trees, setTrees] = useState([]); 
+  const [gridAfter, setGridAfter] = useState(null); 
   const [metrics, setMetrics] = useState({
     treesPlanted: 0,
     tempReduced: 0,
@@ -27,9 +19,7 @@ export function useSimulation() {
   const intervalRef = useRef(null);
   const abortRef = useRef(false);
 
-  /**
-   * Stop the animation loop (data is preserved)
-   */
+  
   const stopSimulation = useCallback(() => {
     abortRef.current = true;
     if (intervalRef.current) {
@@ -39,9 +29,7 @@ export function useSimulation() {
     setStatus((prev) => (prev === "animating" ? "completed" : prev));
   }, []);
 
-  /**
-   * Reset everything to initial state
-   */
+  
   const resetSimulation = useCallback(() => {
     stopSimulation();
     setStatus("idle");
@@ -59,15 +47,7 @@ export function useSimulation() {
     setAfterMetrics(null);
   }, [stopSimulation]);
 
-  /**
-   * Run the RL simulation.
-   *
-   * @param {string} city - City name to simulate
-   * @param {number} budget - Number of trees (10-500)
-   * @param {Object} weights - Reward weights { heat, flood, equity, cost }
-   * @param {boolean} quick - Use cached grid (skip data fetching)
-   * @param {number} animationSpeedMs - Delay between animated tree placements
-   */
+  
   const startSimulation = useCallback(
     async (
       city = "Surabaya",
@@ -93,7 +73,7 @@ export function useSimulation() {
           return;
         }
 
-        // Store full results
+        
         setBeforeMetrics(data.before);
         setAfterMetrics(data.after);
         setGridAfter(data.grid_after);
@@ -104,7 +84,7 @@ export function useSimulation() {
           return;
         }
 
-        // Animate tree placements step by step
+        
         setStatus("animating");
         let currentStep = 0;
 
@@ -114,7 +94,7 @@ export function useSimulation() {
             intervalRef.current = null;
             if (!abortRef.current) {
               setStatus("completed");
-              // Final metrics from backend
+              
               setMetrics({
                 treesPlanted: steps.length,
                 tempReduced: data.summary?.delta_avg_lst || 0,
@@ -129,7 +109,7 @@ export function useSimulation() {
           const step = steps[currentStep];
           setTrees((prev) => [...prev, [step.lng, step.lat]]);
 
-          // Progressive metrics update (interpolate toward final)
+          
           const progress = (currentStep + 1) / steps.length;
           setMetrics({
             treesPlanted: currentStep + 1,

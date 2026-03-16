@@ -15,21 +15,19 @@ import {
 } from "@/constants/designTokens";
 import Button from "../components/common/Button";
 
-/* ── Copy helper ── */
 function copyHex(text, setCopied) {
   navigator.clipboard.writeText(text);
   setCopied(text);
   setTimeout(() => setCopied(null), 1500);
 }
 
-/* ── Section wrapper ── */
 function Section({ id, title, description, badge, icon: Icon, children }) {
   return (
     <section
       id={id}
       className="scroll-mt-32 pt-24 pb-12 border-b border-white/[0.05] last:border-0 relative"
     >
-      {/* Decorative ambient glow per section */}
+      
       <div className="absolute top-24 -left-32 w-64 h-64 bg-primary-500/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="mb-12 max-w-2xl relative z-10">
@@ -58,7 +56,6 @@ function Section({ id, title, description, badge, icon: Icon, children }) {
   );
 }
 
-/* ── Color Swatch ── */
 function Swatch({ hex, token, label, usage, copied, onCopy }) {
   const isActive = copied === hex;
   const isLight = [
@@ -107,7 +104,6 @@ function Swatch({ hex, token, label, usage, copied, onCopy }) {
   );
 }
 
-/* ── Data scale bar ── */
 function ScaleBar({ items, title, description }) {
   return (
     <div className="bg-base-900/50 backdrop-blur-sm border border-white/[0.05] shadow-card rounded-2xl p-6 hover:bg-base-900 transition-colors">
@@ -116,7 +112,7 @@ function ScaleBar({ items, title, description }) {
       </h3>
       <p className="text-sm text-base-400 mb-6">{description}</p>
 
-      {/* Visual Bar */}
+      
       <div className="flex height-8 rounded-md overflow-hidden mb-6 ring-1 ring-inset ring-white/10 shadow-inner">
         {items.map((item) => (
           <div
@@ -125,7 +121,7 @@ function ScaleBar({ items, title, description }) {
             style={{ backgroundColor: item.hex }}
             title={`${item.label} (${item.hex})`}
           >
-            {/* Hanya show label kalau di desktop, biar nggak terlalu sempit */}
+            
             <span className="hidden md:inline-block font-mono text-[9px] font-bold text-white/90 drop-shadow-md tracking-wider">
               {item.label}
             </span>
@@ -133,7 +129,7 @@ function ScaleBar({ items, title, description }) {
         ))}
       </div>
 
-      {/* Legend */}
+      
       <div className="space-y-4">
         {items.map((item) => (
           <div key={item.label} className="flex items-start gap-3">
@@ -156,7 +152,6 @@ function ScaleBar({ items, title, description }) {
   );
 }
 
-/* ── Shadow/Glow demo card ── */
 function ShadowDemo({ token, value, usage }) {
   const isInner = value.includes("inset");
   const isGlow = token.includes("glow");
@@ -189,17 +184,12 @@ function ShadowDemo({ token, value, usage }) {
   );
 }
 
-/* ── Navigation ── */
 const NAV_ITEMS = [
   { id: "base", label: "Colors", icon: Palette },
   { id: "dataviz", label: "Data Viz", icon: Map },
   { id: "typography", label: "Typography", icon: Type },
   { id: "shadows", label: "Depth & Glow", icon: Box },
 ];
-
-/* =====================================================
-   Page
-   ===================================================== */
 
 export default function DesignSystem() {
   const [copied, setCopied] = useState(null);
@@ -219,15 +209,15 @@ export default function DesignSystem() {
 
   return (
     <div className="min-h-screen bg-base-950 text-base-300 font-body selection:bg-primary-500/30 selection:text-white pb-32">
-      {/* Background ambient glow setup (mailkit aesthetic) */}
+      
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Top right blob */}
+        
         <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary-600/5 blur-[120px]" />
-        {/* Bottom left blob */}
+        
         <div className="absolute bottom-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-accent-600/5 blur-[150px]" />
       </div>
 
-      {/* ── Header ── */}
+      
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b ${scrolled ? "bg-base-950/80 backdrop-blur-lg border-white/[0.05]" : "bg-transparent border-transparent"}`}
       >
@@ -240,7 +230,7 @@ export default function DesignSystem() {
               </span>
             </h1>
 
-            {/* Desktop Navigation Tabs */}
+            
             <nav className="hidden md:flex items-center gap-2">
               {NAV_ITEMS.map((item) => (
                 <a
@@ -265,9 +255,9 @@ export default function DesignSystem() {
         </div>
       </header>
 
-      {/* ── Content ── */}
+      
       <main className="relative z-10 max-w-7xl mx-auto px-6 pt-32 flex flex-col">
-        {/* Intro Hero */}
+        
         <div className="py-20 max-w-3xl">
           <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-white mb-6 leading-[1.1] font-heading">
             Pure dark mode, <br />
@@ -283,7 +273,7 @@ export default function DesignSystem() {
           </p>
         </div>
 
-        {/* Base Colors */}
+        
         <Section
           id="base"
           badge="01 / Foundation"
@@ -303,7 +293,7 @@ export default function DesignSystem() {
           </div>
         </Section>
 
-        {/* Brand & Accent */}
+        
         <Section
           id="brand"
           badge="02 / Brand Elements"
@@ -364,7 +354,7 @@ export default function DesignSystem() {
           </div>
         </Section>
 
-        {/* Data Viz */}
+        
         <Section
           id="dataviz"
           badge="03 / Geospatial"
@@ -391,7 +381,7 @@ export default function DesignSystem() {
           </div>
         </Section>
 
-        {/* Typography */}
+        
         <Section
           id="typography"
           badge="04 / Editorial"
@@ -482,7 +472,7 @@ export default function DesignSystem() {
           </div>
         </Section>
 
-        {/* Shadows to Glows */}
+        
         <Section
           id="shadows"
           badge="05 / Dimension"
@@ -506,7 +496,7 @@ export default function DesignSystem() {
                 <Map className="w-4 h-4" />
                 Analyze Region
               </span>
-              {/* Subtle top inner gradient highlight for 3D feel */}
+              
               <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
               <div className="absolute inset-0 rounded-full bg-linear-to-b from-white/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
             </button>
@@ -516,7 +506,7 @@ export default function DesignSystem() {
           </div>
         </Section>
 
-        {/* Footer */}
+        
         <footer className="mt-20 pt-16 flex flex-col items-center justify-center text-center">
           <div className="w-12 h-12 mb-6 rounded-2xl bg-[#0a0a0a] border border-white/[0.05] shadow-card flex items-center justify-center">
             <span className="font-emphasis italic font-normal text-white text-2xl leading-none pt-1">

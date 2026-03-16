@@ -7,10 +7,10 @@ const Card = forwardRef(({ className = "", children, ...props }, ref) => {
       className={`relative bg-base-900 border border-white/5 rounded-3xl shadow-card overflow-hidden group transition-colors hover:border-white/10 ${className}`}
       {...props}
     >
-      {/* Subtle interactive ambient glow inside the card on hover */}
+      
       <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 transition-transform duration-700 group-hover:translate-x-1/4 pointer-events-none" />
 
-      {/* Subtle inner highlight to simulate glass edge / 3D depth on true black */}
+      
       <div className="absolute inset-0 pointer-events-none border border-white/2 rounded-3xl mix-blend-overlay"></div>
 
       <div className="relative z-10 w-full h-full">{children}</div>

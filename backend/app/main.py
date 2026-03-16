@@ -7,10 +7,10 @@ from app.api import simulation
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Setup: create shared httpx client
+
     app.state.client = httpx.AsyncClient(timeout=30.0)
     yield
-    # Teardown: close client
+
     await app.state.client.aclose()
 
 app = FastAPI(

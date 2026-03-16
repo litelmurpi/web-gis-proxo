@@ -20,10 +20,10 @@ export default function Simulation() {
   } = useSimulation();
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [currentBudget, setCurrentBudget] = useState(50);
-  const [cityQuery, setCityQuery] = useState("Surabaya"); // Default city for grid loading
+  const [cityQuery, setCityQuery] = useState("Surabaya"); 
 
   const handleRun = (city, budget, weights) => {
-    setCityQuery(city); // Update grid if city changed
+    setCityQuery(city); 
     setCurrentBudget(budget);
     setShowBeforeAfter(false);
     startSimulation(city, budget, weights);
@@ -34,17 +34,17 @@ export default function Simulation() {
 
   return (
     <div className="h-full w-full bg-base-950 flex flex-col lg:flex-row overflow-hidden relative">
-      {/* LEFT: Map area */}
+      
       <div className="flex-1 relative z-0 h-[60vh] lg:h-full">
         <MapContainer
           activeLayer={activeLayer}
           simulationTrees={trees}
           showBeforeAfter={showBeforeAfter}
           gridAfter={gridAfter}
-          cityQuery={cityQuery} // Pass cityQuery to trigger base grid fetch
+          cityQuery={cityQuery} 
         />
 
-        {/* Loading Overlay */}
+        
         {isLoading && (
           <div className="absolute inset-0 bg-base-950/60 backdrop-blur-sm flex items-center justify-center z-20">
             <div className="bg-base-950/90 border border-white/10 px-8 py-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4">
@@ -79,7 +79,7 @@ export default function Simulation() {
           </div>
         )}
 
-        {/* Running Indicator */}
+        
         {isRunning && (
           <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-base-950/80 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 z-10 pointer-events-none">
             <span className="relative flex h-3 w-3">
@@ -92,7 +92,7 @@ export default function Simulation() {
           </div>
         )}
 
-        {/* Completed Indicator */}
+        
         {status === "completed" && (
           <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/30 px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 z-10 pointer-events-none">
             <span className="relative flex h-3 w-3">
@@ -104,7 +104,7 @@ export default function Simulation() {
           </div>
         )}
 
-        {/* Error Indicator */}
+        
         {status === "error" && (
           <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-red-950/80 backdrop-blur-md border border-red-500/30 px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 z-10 pointer-events-none">
             <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -115,9 +115,9 @@ export default function Simulation() {
         )}
       </div>
 
-      {/* RIGHT: Control & Stats Panel */}
+      
       <div className="w-full lg:w-96 bg-base-950 lg:border-l border-white/5 flex flex-col shrink-0 relative z-10 shadow-2xl overflow-y-auto h-[40vh] lg:h-full">
-        {/* Header */}
+        
         <div className="px-6 py-5 border-b border-white/5 sticky top-0 bg-base-950/95 backdrop-blur z-20">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary-500/10 rounded-lg border border-primary-500/20">
@@ -135,7 +135,7 @@ export default function Simulation() {
           </div>
         </div>
 
-        {/* Controls & Stats */}
+        
         <div className="p-6 flex flex-col gap-6">
           <SimulationControls
             onRun={handleRun}

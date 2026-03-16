@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -43,14 +42,13 @@ const stagger = {
   },
 };
 
-/* ─── Data ─── */
 const modules = [
   {
     icon: ThermometerSun,
     color: "text-red-400",
     bg: "bg-red-500/10 border-red-500/20",
     title: "Urban Heat Prediction",
-    desc: "Memprediksi Land Surface Temperature (LST) per grid 100 m menggunakan XGBoost Regressor dari data Landsat 8/9, NDVI, dan kepadatan bangunan.",
+    desc: "Predicts Land Surface Temperature (LST) per 100m grid using XGBoost Regressor with Landsat 8/9, NDVI, and building density data.",
     metric: "MAE < 1.5°C",
   },
   {
@@ -58,7 +56,7 @@ const modules = [
     color: "text-blue-400",
     bg: "bg-blue-500/10 border-blue-500/20",
     title: "Flood Risk Scoring",
-    desc: "Menghitung probabilitas risiko banjir (0–1.0) per grid menggunakan XGBoost Classifier dengan 9 fitur geospasial termasuk DEM, curah hujan, dan imperviousness.",
+    desc: "Calculates flood-risk probability (0–1.0) per grid using XGBoost Classifier with 9 geospatial features including DEM, rainfall, and imperviousness.",
     metric: "AUC-ROC > 0.80",
   },
   {
@@ -66,7 +64,7 @@ const modules = [
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
     title: "Green Equity Index",
-    desc: "Mengukur ketimpangan akses Ruang Terbuka Hijau (RTH) menggunakan modified Gini Coefficient dan K-Means Clustering menjadi 4 klaster.",
+    desc: "Measures inequality of green open space access using a modified Gini Coefficient and K-Means Clustering into 4 clusters.",
     metric: "Equity Score 0–100",
   },
   {
@@ -74,7 +72,7 @@ const modules = [
     color: "text-purple-400",
     bg: "bg-purple-500/10 border-purple-500/20",
     title: "RL Tree Placement",
-    desc: "Agen Reinforcement Learning (PPO) merekomendasikan lokasi penanaman pohon yang optimal dengan multi-objective: penurunan suhu + banjir + green equity.",
+    desc: "A Reinforcement Learning (PPO) agent recommends optimal tree planting locations with multi-objective goals: temperature reduction + flood mitigation + green equity.",
     metric: "Multi-Objective Optimization",
   },
 ];
@@ -135,9 +133,7 @@ const team = [
 export default function About() {
   return (
     <div className="min-h-screen bg-base-950 text-white overflow-hidden selection:bg-primary-500/30">
-      {/* ── HERO ── */}
       <section className="relative pt-32 pb-20 md:pt-44 md:pb-28 px-6">
-        {/* Background ambient */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <Threads
             amplitude={0.9}
@@ -160,7 +156,7 @@ export default function About() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-medium text-primary-400"
           >
             <Globe className="w-3.5 h-3.5" />
-            Tentang Proyek
+            About the Project
           </motion.div>
 
           <motion.h1
@@ -177,9 +173,8 @@ export default function About() {
             variants={fadeIn}
             className="text-lg md:text-xl text-base-400 max-w-2xl mx-auto leading-relaxed"
           >
-            Platform WebGIS berbasis AI untuk perencanaan kota berkelanjutan.
-            Kami tidak sekadar memvisualisasikan masalah — kami merekomendasikan
-            solusi yang optimal.
+            An AI-powered WebGIS platform for sustainable urban planning.
+            We don't just visualize problems — we recommend optimal solutions.
           </motion.p>
 
           <motion.p
@@ -191,7 +186,6 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* ── PROBLEM STATEMENT ── */}
       <section className="py-20 px-6 border-y border-white/5 bg-base-900/40">
         <div className="max-w-5xl mx-auto">
           <motion.div
@@ -203,25 +197,25 @@ export default function About() {
           >
             <motion.div variants={fadeIn} className="space-y-5">
               <h2 className="text-3xl font-semibold">
-                Mengapa{" "}
+                Why{" "}
                 <span className="text-primary-400 font-heading italic font-normal">
                   prescriptive?
                 </span>
               </h2>
               <p className="text-base-400 leading-relaxed">
-                Kota-kota besar Indonesia menghadapi tekanan ekosistem yang
-                serius: Urban Heat Island, risiko banjir periodik, dan
-                ketimpangan akses ruang terbuka hijau.
+                Major Indonesian cities face serious ecosystem pressures: Urban
+                Heat Islands, periodic flood risk, and unequal access to green
+                open spaces.
               </p>
               <p className="text-base-400 leading-relaxed">
-                Tools yang ada saat ini bersifat{" "}
-                <strong className="text-white">deskriptif</strong> atau{" "}
-                <strong className="text-white">prediktif</strong> — menunjukkan
-                masalah, tetapi tidak menjawab pertanyaan paling penting:
+                Existing tools are{" "}
+                <strong className="text-white">descriptive</strong> or{" "}
+                <strong className="text-white">predictive</strong> — they show
+                the problem, but don't answer the most important question:
               </p>
               <blockquote className="border-l-2 border-primary-500 pl-4 py-2 text-white font-medium italic">
-                &quot;Di mana harus bertindak, dan tindakan apa yang memberikan
-                dampak paling besar?&quot;
+                &quot;Where should we act, and what action delivers the greatest
+                impact?&quot;
               </blockquote>
             </motion.div>
 
@@ -232,22 +226,22 @@ export default function About() {
                     {[
                       {
                         label: "Urban Heat Island",
-                        detail: "Suhu 1–7°C lebih tinggi di kawasan urban",
+                        detail: "Surface temps 1–7°C higher in urban zones",
                         color: "bg-red-500",
                       },
                       {
-                        label: "Risiko Banjir Periodik",
-                        detail: "Drainase buruk + curah hujan ekstrem",
+                        label: "Periodic Flood Risk",
+                        detail: "Poor drainage + extreme rainfall events",
                         color: "bg-blue-500",
                       },
                       {
-                        label: "Ketimpangan RTH",
-                        detail: 'Pemukiman padat = "Green Desert"',
+                        label: "Green Space Inequality",
+                        detail: 'Dense neighborhoods = "Green Deserts"',
                         color: "bg-emerald-500",
                       },
                       {
-                        label: "Tools Tidak Proaktif",
-                        detail: "Keputusan berbasis intuisi, bukan data",
+                        label: "Reactive Decision Making",
+                        detail: "Decisions based on intuition, not data",
                         color: "bg-amber-500",
                       },
                     ].map((item) => (
@@ -274,7 +268,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── 4 AI MODULES ── */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto space-y-12">
           <motion.div
@@ -285,14 +278,14 @@ export default function About() {
             className="text-center space-y-3"
           >
             <h2 className="text-3xl font-semibold">
-              Empat{" "}
+              Four{" "}
               <span className="text-primary-400 font-heading italic font-normal">
-                Modul AI
+                AI Modules
               </span>
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
-              Setiap modul dirancang untuk menangani satu dimensi permasalahan
-              kota, lalu diintegrasikan melalui RL agent.
+              Each module is designed to address one dimension of urban
+              challenges, then integrated through the RL agent.
             </p>
           </motion.div>
 
@@ -335,7 +328,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── PILOT CITY ── */}
       <section className="py-20 px-6 border-y border-white/5 bg-base-900/40">
         <div className="max-w-5xl mx-auto">
           <motion.div
@@ -347,15 +339,15 @@ export default function About() {
           >
             <motion.div variants={fadeIn} className="text-center space-y-3">
               <h2 className="text-3xl font-semibold">
-                Kota{" "}
+                Pilot{" "}
                 <span className="text-primary-400 font-heading italic font-normal">
-                  Pilot
+                  City
                 </span>
               </h2>
               <p className="text-base-400 max-w-xl mx-auto text-sm">
-                Kota Surabaya dipilih sebagai kota pilot berdasarkan
-                ketersediaan data, relevansi permasalahan, dan komunitas
-                geospasial yang aktif.
+                Surabaya was selected as the pilot city based on data
+                availability, problem relevance, and an active geospatial
+                community.
               </p>
             </motion.div>
 
@@ -364,12 +356,12 @@ export default function About() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {[
-                      { label: "Kota", value: "Surabaya" },
-                      { label: "Grid Resolusi", value: "100m × 100m" },
-                      { label: "Data Satelit", value: "Landsat 8/9" },
-                      { label: "UHI Relevansi", value: "Sangat Tinggi" },
-                      { label: "Flood Risk", value: "Sangat Tinggi" },
-                      { label: "OSM Coverage", value: "Lengkap" },
+                      { label: "City", value: "Surabaya" },
+                      { label: "Grid Resolution", value: "100m × 100m" },
+                      { label: "Satellite Data", value: "Landsat 8/9" },
+                      { label: "UHI Relevance", value: "Very High" },
+                      { label: "Flood Risk", value: "Very High" },
+                      { label: "OSM Coverage", value: "Complete" },
                     ].map((item) => (
                       <div key={item.label} className="text-center p-3">
                         <p className="text-2xl font-semibold text-white mb-1">
@@ -388,7 +380,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── TECH STACK ── */}
       <section className="py-24 px-6">
         <div className="max-w-5xl mx-auto space-y-12">
           <motion.div
@@ -405,8 +396,8 @@ export default function About() {
               </span>
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
-              Arsitektur full-stack modern yang dirancang untuk performa,
-              skalabilitas, dan pengalaman pengguna premium.
+              A modern full-stack architecture designed for performance,
+              scalability, and a premium user experience.
             </p>
           </motion.div>
 
@@ -448,7 +439,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── TEAM ── */}
       <section className="py-20 px-6 border-y border-white/5 bg-base-900/40">
         <div className="max-w-5xl mx-auto space-y-12">
           <motion.div
@@ -459,13 +449,14 @@ export default function About() {
             className="text-center space-y-3"
           >
             <h2 className="text-3xl font-semibold">
-              Tim{" "}
+              Development{" "}
               <span className="text-primary-400 font-heading italic font-normal">
-                Pengembang
+                Team
               </span>
             </h2>
             <p className="text-base-400 max-w-xl mx-auto text-sm">
-              Tim kecil dengan fokus besar — 3 engineer dari berbagai disiplin.
+              A small team with a big focus — 3 engineers from diverse
+              disciplines.
             </p>
           </motion.div>
 
@@ -480,7 +471,6 @@ export default function About() {
               <motion.div key={member.name} variants={fadeIn}>
                 <Card className="h-full text-center">
                   <CardContent className="flex flex-col items-center gap-3">
-                    {/* Avatar placeholder */}
                     <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary-500/20 to-primary-700/20 border border-primary-500/10 flex items-center justify-center">
                       <Layers className="w-7 h-7 text-primary-400" />
                     </div>
@@ -503,7 +493,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
       <section className="py-24 px-6 relative overflow-hidden">
         <div className="absolute inset-0 z-0 bg-primary-900/10 mask-[radial-gradient(ellipse_at_top,#000_10%,transparent_70%)]" />
 
@@ -515,24 +504,24 @@ export default function About() {
           variants={fadeIn}
         >
           <h2 className="text-4xl md:text-5xl font-semibold">
-            Lihat langsung{" "}
+            See it in{" "}
             <span className="text-primary-400 italic font-heading font-normal">
-              aksinya.
+              action.
             </span>
           </h2>
           <p className="text-base-400 text-lg">
-            Jelajahi peta interaktif, jalankan simulasi AI, dan lihat bagaimana
-            data menggerakkan keputusan nyata.
+            Explore the interactive map, run AI simulations, and see how data
+            drives real decisions.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link to="/map">
               <Button size="lg" variant="primary" leftIcon={Map}>
-                Buka Map Explorer
+                Open Map Explorer
               </Button>
             </Link>
             <Link to="/simulation">
               <Button size="lg" variant="ghost" rightIcon={ArrowRight}>
-                Coba Simulasi RL
+                Try RL Simulation
               </Button>
             </Link>
           </div>

@@ -1,19 +1,5 @@
 import { ThermometerSnowflake, Waves, Leaf, Droplets } from "lucide-react";
 
-/**
- * Live simulation statistics panel.
- * Displays heat reduction, flood mitigation, equity improvement,
- * trees planted progress, and before/after toggle.
- *
- * @param {Object} props
- * @param {Object} props.metrics - { treesPlanted, tempReduced, floodReduced, equityImproved }
- * @param {number} props.budget - Total tree budget for progress bar
- * @param {boolean} props.showBeforeAfter - Toggle state
- * @param {Function} props.onToggleBeforeAfter - Toggle handler
- * @param {boolean} props.isLoading - Show skeleton when loading
- * @param {string} props.error - Error message to display
- * @returns {JSX.Element}
- */
 export default function SimulationStats({
   metrics,
   budget = 50,
@@ -42,7 +28,7 @@ export default function SimulationStats({
             Computing...
           </span>
         </div>
-        {/* Skeleton grid */}
+        
         <div className="grid grid-cols-3 gap-3">
           {[...Array(3)].map((_, i) => (
             <div
@@ -68,9 +54,9 @@ export default function SimulationStats({
         </span>
       </div>
 
-      {/* 3-column metrics grid */}
+      
       <div className="grid grid-cols-3 gap-3">
-        {/* Heat Reduction */}
+        
         <div className="bg-white/3 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <ThermometerSnowflake className="w-4 h-4 text-emerald-400" />
@@ -89,7 +75,7 @@ export default function SimulationStats({
           </div>
         </div>
 
-        {/* Flood Mitigation */}
+        
         <div className="bg-white/3 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <Waves className="w-4 h-4 text-blue-400" />
@@ -108,7 +94,7 @@ export default function SimulationStats({
           </div>
         </div>
 
-        {/* Equity Improvement */}
+        
         <div className="bg-white/3 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <Leaf className="w-4 h-4 text-emerald-400" />
@@ -128,7 +114,7 @@ export default function SimulationStats({
         </div>
       </div>
 
-      {/* Trees Planted Progress */}
+      
       <div className="flex items-center gap-3 bg-base-900 border border-white/5 rounded-lg p-3">
         <div className="p-1.5 bg-emerald-500/10 rounded-md">
           <Droplets className="w-4 h-4 text-emerald-500" />
@@ -152,7 +138,7 @@ export default function SimulationStats({
         </div>
       </div>
 
-      {/* Before / After Toggle */}
+      
       <div className="mt-2 flex items-center justify-between py-2 border-t border-white/5">
         <div>
           <p className="text-sm text-white font-medium">Compare Baseline</p>

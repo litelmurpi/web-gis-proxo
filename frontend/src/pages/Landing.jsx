@@ -31,10 +31,10 @@ export default function Landing() {
   const heroGlowRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
-  // GSAP ScrollTrigger effects
+  
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Parallax shrink on hero glow orb as you scroll down
+      
       if (heroGlowRef.current) {
         gsap.to(heroGlowRef.current, {
           scale: 0.3,
@@ -49,7 +49,7 @@ export default function Landing() {
         });
       }
 
-      // 2. Staggered section entrance for below-the-fold content
+      
       gsap.utils.toArray(".gsap-section").forEach((section) => {
         gsap.fromTo(
           section,
@@ -72,7 +72,7 @@ export default function Landing() {
     return () => ctx.revert();
   }, []);
 
-  // Animation variants (framer-motion)
+  
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -95,9 +95,9 @@ export default function Landing() {
       ref={scrollContainerRef}
       className="bg-base-950 min-h-screen text-white overflow-hidden selection:bg-primary-500/30"
     >
-      {/* --- 1. HERO SECTION --- */}
+      
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 flex flex-col items-center justify-center min-h-[90vh]">
-        {/* Abstract Background Grid Glow */}
+        
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
           <Threads
             amplitude={0.9}
@@ -164,7 +164,7 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* --- 2. THE PROBLEM STATEMENT --- */}
+      
       <section className="gsap-section py-24 px-6 border-y border-white/5 bg-base-900/50 relative">
         <div className="max-w-5xl mx-auto">
           <motion.div
@@ -239,7 +239,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* --- 3. CORE MODULES (BENTO GRID) --- */}
+      
       <section className="gsap-section py-32 px-6">
         <div className="max-w-6xl mx-auto space-y-12">
           <motion.div
@@ -256,7 +256,7 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          {/* Bento Grid layout */}
+          
           <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-min md:auto-rows-[250px]"
             initial="hidden"
@@ -264,7 +264,7 @@ export default function Landing() {
             viewport={{ once: true }}
             variants={staggerContainer}
           >
-            {/* Heat Prediction */}
+            
             <motion.div variants={fadeIn} className="col-span-1 md:col-span-2">
               <Card className="h-full">
                 <CardHeader>
@@ -280,7 +280,7 @@ export default function Landing() {
               </Card>
             </motion.div>
 
-            {/* Flood Risk */}
+            
             <motion.div variants={fadeIn} className="col-span-1">
               <Card className="h-full">
                 <CardHeader>
@@ -294,7 +294,7 @@ export default function Landing() {
               </Card>
             </motion.div>
 
-            {/* Green Equity */}
+            
             <motion.div variants={fadeIn} className="col-span-1">
               <Card className="h-full">
                 <CardHeader>
@@ -307,7 +307,7 @@ export default function Landing() {
               </Card>
             </motion.div>
 
-            {/* RL Tree Placement - Highlighted */}
+            
             <motion.div variants={fadeIn} className="col-span-1 md:col-span-2">
               <Card className="h-full group overflow-hidden border-primary-500/30 bg-primary-950/20">
                 <div className="absolute inset-0 bg-linear-to-br from-primary-600/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
@@ -334,7 +334,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* --- 4. ARCHITECTURE / PIPELINE --- */}
+      
       <section className="py-24 px-6 border-t border-white/5 bg-base-900/30">
         <div className="max-w-5xl mx-auto text-center space-y-16">
           <motion.div
@@ -357,7 +357,7 @@ export default function Landing() {
             viewport={{ once: true }}
             variants={staggerContainer}
           >
-            {/* Connecting Line (Desktop) */}
+            
             <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-linear-to-r from-transparent via-white/10 to-transparent -translate-y-1/2 z-0" />
 
             {[
@@ -401,7 +401,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* --- 5. BOTTOM CTA --- */}
+      
       <section className="gsap-section py-24 px-6 bg-base-900/30 border-y border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 z-0 bg-primary-900/10 mask-[radial-gradient(ellipse_at_top,#000_10%,transparent_70%)]" />
         <motion.div

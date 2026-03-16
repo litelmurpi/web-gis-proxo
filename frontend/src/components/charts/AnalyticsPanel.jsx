@@ -11,14 +11,6 @@ import { useLayer } from "../../context/LayerContext";
 import { BarChart3, ChevronDown, ChevronUp, X } from "lucide-react";
 import { useState, useMemo } from "react";
 
-/**
- * Menghitung rata-rata skor dari seluruh grid GeoJSON untuk setiap metrik risiko.
- * WHY: Kita menghitung agregat dari mockGeoJSON agar data radar chart
- * mencerminkan kondisi keseluruhan kota, bukan per-sel individual.
- *
- * @param {GeoJSON.FeatureCollection} geojson - Data grid kota
- * @returns {Array<{metric: string, value: number, fullMark: number}>} Data siap Recharts
- */
 function computeCityMetrics(geojson) {
   const features = geojson?.features || [];
   const count = features.length || 1;
@@ -26,16 +18,16 @@ function computeCityMetrics(geojson) {
   const totals = features.reduce(
     (acc, f) => {
       const p = f.properties;
-      // Use 'lst' (°C, typically 25-35) normalized to 0-100, or heatScore for fallback
+      
       const heatVal = p.lst != null
-        ? Math.max(0, Math.min(100, ((p.lst - 24) / 12) * 100)) // 24°C=0, 36°C=100
+        ? Math.max(0, Math.min(100, ((p.lst - 26) / 10) * 100)) 
         : (p.heatScore || 0);
       acc.heat += heatVal;
       acc.flood += (p.floodScore || 0);
       acc.equity += (p.equityScore || 0);
       acc.totalPop += (p.population || 0);
-      // Normalize pop density per cell to 0-100 for radar (WorldPop max ~325/cell)
-      acc.popDensity += Math.min(100, ((p.population || 0) / 325) * 100);
+      
+      acc.popDensity += Math.min(100, ((p.population || 0) / 3500) * 100);
       return acc;
     },
     { heat: 0, flood: 0, equity: 0, totalPop: 0, popDensity: 0 },
@@ -47,19 +39,14 @@ function computeCityMetrics(geojson) {
     { metric: "Green Equity",value: Math.round(totals.equity / count),     fullMark: 100, display: null },
     {
       metric: "Population",
-      value: Math.round(totals.popDensity / count), // Normalized density for radar
+      value: Math.round(totals.popDensity / count), 
       fullMark: 100,
-      display: totals.totalPop.toLocaleString(),    // Real total shown in stat card
+      display: totals.totalPop.toLocaleString(),    
       displayUnit: "residents",
     },
   ];
 }
 
-/**
- * Warna stroke Radar Chart berdasarkan layer aktif.
- * WHY: Agar visual chart selalu selaras (color-coded) dengan layer peta yang sedang ditampilkan.
- * @type {Record<string, string>}
- */
 const radarStrokeColors = {
   heat: "#ef4444",
   flood: "#3b82f6",
@@ -74,10 +61,6 @@ const radarFillColors = {
   population: "rgba(234, 179, 8, 0.15)",
 };
 
-/**
- * Custom tooltip untuk Radar Chart.
- * Menampilkan nama metrik dan nilainya dengan gaya premium dark mode.
- */
 function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload;
@@ -89,19 +72,6 @@ function CustomTooltip({ active, payload }) {
   );
 }
 
-/**
- * Panel analitik mengapung di sudut kanan atas peta (Desktop).
- * Berisi Radar Chart yang menggambarkan skor risiko rata-rata seluruh kota.
- * Pada mobile, panel ini bisa di-collapse (lipat) agar tidak menghalangi peta.
-/**
- * Panel analitik mengapung di sudut kanan atas peta (Desktop).
- * Berisi Radar Chart yang menggambarkan skor risiko rata-rata seluruh kota.
- * Pada mobile, panel ini beroperasi sebagai Modal yang menutupi layar.
- *
- * @param {boolean} isOpen - State apakah panel terbuka (khusus mobile)
- * @param {Function} onClose - Fungsi menutup panel (khusus mobile)
- * @returns {JSX.Element} Panel analitik atau Modal analitik di mobile
- */
 export default function AnalyticsPanel({ isOpen, onClose }) {
   const { activeLayer, cityGeoJSON } = useLayer();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -112,13 +82,13 @@ export default function AnalyticsPanel({ isOpen, onClose }) {
   const strokeColor = radarStrokeColors[activeLayer] || "#6366f1";
   const fillColor = radarFillColors[activeLayer] || "rgba(99, 102, 241, 0.15)";
 
-  // Mobile Modal View
+  
   const mobileModal = (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
     >
       <div className="bg-base-950 border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col">
-        {/* Modal Header */}
+        
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/2">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-primary-500/10 rounded-lg border border-primary-500/20">
@@ -136,7 +106,7 @@ export default function AnalyticsPanel({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Modal Body (Selalu terbuka) */}
+        
         <div className="p-4">
           <ChartContent
             cityMetrics={cityMetrics}
@@ -148,11 +118,11 @@ export default function AnalyticsPanel({ isOpen, onClose }) {
     </div>
   );
 
-  // Desktop Floating Panel View
+  
   const desktopPanel = (
     <div className="hidden lg:block absolute top-4 right-16 z-10 pointer-events-auto">
       <div className="bg-base-950/85 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl w-72 overflow-hidden">
-        {/* Header — selalu terlihat */}
+        
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="w-full flex items-center justify-between px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors outline-none"
@@ -172,7 +142,7 @@ export default function AnalyticsPanel({ isOpen, onClose }) {
           )}
         </button>
 
-        {/* Body — bisa di-collapse */}
+        
         {!isCollapsed && (
           <div className="p-4">
             <ChartContent
@@ -194,13 +164,10 @@ export default function AnalyticsPanel({ isOpen, onClose }) {
   );
 }
 
-/**
- * Komponen reusable untuk isi Chart agar tidak diulang di Mobile/Desktop
- */
 function ChartContent({ cityMetrics, strokeColor, fillColor }) {
   return (
     <>
-      {/* Radar Chart */}
+      
       <div className="w-full h-52">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={cityMetrics}>
@@ -234,7 +201,7 @@ function ChartContent({ cityMetrics, strokeColor, fillColor }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Statistik Kartu Ringkas */}
+      
       <div className="grid grid-cols-2 gap-2 mt-3">
         {cityMetrics.map((m) => (
           <div

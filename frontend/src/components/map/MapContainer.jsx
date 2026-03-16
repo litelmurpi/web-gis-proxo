@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useLayer } from "../../context/LayerContext";
-// import { generateMockGrid } from "../../utils/mockGeoJSON";
 
-// WHY: Terpaksa menggunakan OSM Raster Tile + filter CSS Invert dari sisi client.
-// Provider gratis lain seperti Esri Dark Gray membatasi level zoom untuk region Asia Tenggara (blank putih saat di-zoom map level kelurahan).
 const OSM_STYLE = {
   version: 8,
   sources: {
@@ -28,12 +25,6 @@ const OSM_STYLE = {
   ],
 };
 
-/**
- * Mengkonversi tipe data layer aktif ke aturan MapLibre GL Data-Driven Styling Array
- *
- * @param {'heat' | 'flood' | 'equity' | 'population'} layer - Nama model geospatial yang sedang aktif
- * @returns {Array} MapLibre style expression rule array
- */
 const getLayerColorRule = (layer) => {
   switch (layer) {
     case "heat":
@@ -41,12 +32,12 @@ const getLayerColorRule = (layer) => {
         "interpolate",
         ["linear"],
         ["get", "lst"],
-        25,
-        "rgba(99, 102, 241, 0.4)", // Indigo (set opacity to 0.4 min so it's always visible)
-        29,
-        "rgba(234, 179, 8, 0.5)", // Yellow
-        33,
-        "rgba(239, 68, 68, 0.7)", // Red
+        28,
+        "rgba(99, 102, 241, 0.4)", 
+        31,
+        "rgba(234, 179, 8, 0.5)", 
+        34,
+        "rgba(239, 68, 68, 0.7)", 
       ];
     case "flood":
       return [
@@ -56,9 +47,9 @@ const getLayerColorRule = (layer) => {
         0,
         "rgba(99, 102, 241, 0.05)",
         50,
-        "rgba(59, 130, 246, 0.4)", // Blue
+        "rgba(59, 130, 246, 0.4)", 
         100,
-        "rgba(30, 58, 138, 0.7)", // Dark Blue
+        "rgba(30, 58, 138, 0.7)", 
       ];
     case "equity":
       return [
@@ -66,11 +57,11 @@ const getLayerColorRule = (layer) => {
         ["linear"],
         ["get", "equityScore"],
         0,
-        "rgba(239, 68, 68, 0.8)", // Low equity = Bad (Red)
+        "rgba(239, 68, 68, 0.8)", 
         50,
         "rgba(234, 179, 8, 0.4)",
         100,
-        "rgba(34, 197, 94, 0.7)", // High equity = Good (Green)
+        "rgba(34, 197, 94, 0.7)", 
       ];
     case "population":
       return [
@@ -79,12 +70,12 @@ const getLayerColorRule = (layer) => {
         ["get", "population"],
         0,
         "rgba(99, 102, 241, 0.05)",
-        50,
-        "rgba(168, 85, 247, 0.3)",  // Purple (low-mid density)
-        150,
-        "rgba(236, 72, 153, 0.55)", // Pink (mid-high density)
-        330,
-        "rgba(244, 63, 94, 0.8)",   // Rose (highest density - WorldPop max ~325)
+        500,
+        "rgba(168, 85, 247, 0.3)",  
+        1500,
+        "rgba(236, 72, 153, 0.55)", 
+        3500,
+        "rgba(244, 63, 94, 0.8)",   
       ];
     default:
       return "rgba(255, 255, 255, 0.05)";
@@ -107,45 +98,45 @@ export default function MapContainer({
   const { cityGeoJSON, setCityGeoJSON } = useLayer();
 
   useEffect(() => {
-    if (map.current) return; // initialize map only once
+    if (map.current) return; 
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: OSM_STYLE,
       center: [lng, lat],
       zoom: zoom,
-      attributionControl: false, // Using custom placement below
+      attributionControl: false, 
     });
 
-    // Force resize after mount to fix Vite HMR Canvas dimensions
+    
     setTimeout(() => {
       if (map.current) map.current.resize();
     }, 200);
 
-    // Add navigation controls (zoom in/out, rotation)
+    
     map.current.addControl(new maplibregl.NavigationControl(), "top-right");
 
-    // Add compact attribution
+    
     map.current.addControl(
       new maplibregl.AttributionControl({ compact: true }),
       "bottom-right",
     );
 
-    // Wait for the map style to finish loading before adding layers
+    
     map.current.on("load", () => {
-      // Empty source initial
+      
       map.current.addSource("urban-grid", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
       });
 
-      // 2. Add Fill Layer (Heat Risk visualization as default)
+      
       map.current.addLayer({
         id: "urban-grid-fill",
         type: "fill",
         source: "urban-grid",
         paint: {
-          // Data-driven styling: initially "heat", updated dynamically by the second useEffect
+          
           "fill-color": getLayerColorRule("heat"),
           "fill-opacity": [
             "interpolate",
@@ -154,12 +145,12 @@ export default function MapContainer({
             10,
             0.8,
             15,
-            0.3, // Fade out slightly when zoomed in
+            0.3, 
           ],
         },
       });
 
-      // 3. Add Line Layer for subtle cell borders
+      
       map.current.addLayer({
         id: "urban-grid-line",
         type: "line",
@@ -171,7 +162,7 @@ export default function MapContainer({
         },
       });
 
-      // 4. Interactivity (Hover Tooltips)
+      
       const hoverPopup = new maplibregl.Popup({
         closeButton: false,
         closeOnClick: false,
@@ -192,17 +183,17 @@ export default function MapContainer({
         const pop = props.population || 0;
         const gridId = props.grid_idx_x !== undefined ? `${props.grid_idx_x}_${props.grid_idx_y}` : (props.id || "N/A");
 
-        // Custom dark-mode HTML for the hover tooltip
+        
         const popupHtml = `
           <div style="background-color: #000; color: #fff; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Inter', sans-serif;">
             <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Cell ID: ${gridId}</h4>
             <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
               <div style="display: flex; justify-content: space-between; gap: 24px;">
-                <span style="color: #a1a1aa;">Heat LST:</span>
-                <span style="font-weight: 600; color: ${heatScore > 35 ? "#ef4444" : heatScore > 32 ? "#eab308" : "#22c55e"}">${heatScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">°C</span></span>
+                <span style="color: #a1a1aa;">Est. Temp:</span>
+                <span style="font-weight: 600; color: ${heatScore > 33 ? "#ef4444" : heatScore > 30 ? "#eab308" : "#22c55e"}">${heatScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">°C</span></span>
               </div>
               <div style="display: flex; justify-content: space-between; gap: 24px;">
-                <span style="color: #a1a1aa;">Flood Risk:</span>
+                <span style="color: #a1a1aa;">Flood Vuln:</span>
                 <span style="font-weight: 600; color: ${floodScore > 75 ? "#3b82f6" : floodScore > 40 ? "#60a5fa" : "#93c5fd"}">${floodScore.toFixed(1)} <span style="font-size: 10px; color: #71717a;">%</span></span>
               </div>
               <div style="display: flex; justify-content: space-between; gap: 24px;">
@@ -226,14 +217,14 @@ export default function MapContainer({
       });
     });
 
-    // Cleanup MapLibre instance on unmount to fix Vite HMR caching issues
+    
     return () => {
       map.current?.remove();
       map.current = null;
     };
-  }, []); // Remove lng, lat, zoom deps to prevent re-initializing the whole map
+  }, []); 
 
-  // Effect to handle City Search queries
+  
   useEffect(() => {
     if (!map.current || !cityQuery) return;
 
@@ -251,19 +242,19 @@ export default function MapContainer({
             return;
           }
 
-          // Update Source
+          
           if (map.current.getSource("urban-grid")) {
              map.current.getSource("urban-grid").setData(data.geojson);
-             setCityGeoJSON(data.geojson); // Share with AnalyticsPanel via context
+             setCityGeoJSON(data.geojson); 
           }
           
-          // Fly/Fit Bounds to city
+          
           if (data.bbox && data.bbox.length === 4) {
              const [minLon, minLat, maxLon, maxLat] = data.bbox;
              map.current.fitBounds(
                [
-                 [minLon, minLat], // southwestern corner of the bounds
-                 [maxLon, maxLat]  // northeastern corner of the bounds
+                 [minLon, minLat], 
+                 [maxLon, maxLat]  
                ],
                { padding: 40, duration: 1500 }
              );
@@ -285,12 +276,12 @@ export default function MapContainer({
     }
   }, [cityQuery]);
 
-  // Effect to handle swapping to the 'After' grid when compare is enabled
+  
   useEffect(() => {
     if (!map.current || !map.current.getSource("urban-grid")) return;
 
-    // Use context cityGeoJSON object if viewing 'before' (original)
-    // Use simulation gridAfter object if viewing 'after'
+    
+    
     const targetGeoJSON = showBeforeAfter && gridAfter ? gridAfter : cityGeoJSON;
     
     if (targetGeoJSON) {
@@ -298,7 +289,7 @@ export default function MapContainer({
     }
   }, [showBeforeAfter, gridAfter, cityGeoJSON]);
 
-  // Update map layer paint properties dynamically whenever the activeLayer prop changes
+  
   useEffect(() => {
     if (!map.current) return;
 
@@ -310,7 +301,7 @@ export default function MapContainer({
           getLayerColorRule(activeLayer),
         );
 
-        // Before/After effect: Dim the base grid if Before/After is active
+        
         map.current.setPaintProperty(
           "urban-grid-fill",
           "fill-opacity",
@@ -320,9 +311,9 @@ export default function MapContainer({
                 ["linear"],
                 ["zoom"],
                 10,
-                0.4, // Reduced from 0.8 to simulate "cooled down/mitigated"
+                0.4, 
                 15,
-                0.15, // Fade out heavily when zoomed in to let trees pop
+                0.15, 
               ]
             : [
                 "interpolate",
@@ -331,7 +322,7 @@ export default function MapContainer({
                 10,
                 0.8,
                 15,
-                0.3, // Baseline fade
+                0.3, 
               ],
         );
       }
@@ -344,7 +335,7 @@ export default function MapContainer({
     }
   }, [activeLayer, showBeforeAfter]);
 
-  // Effect to render simulated tree markers
+  
   useEffect(() => {
     if (!map.current) return;
 
@@ -353,7 +344,7 @@ export default function MapContainer({
       const layerIdOuter = "simulation-trees-glow";
       const layerIdInner = "simulation-trees-dot";
 
-      // Convert coordinate array to GeoJSON FeatureCollection
+      
       const geojson = {
         type: "FeatureCollection",
         features: simulationTrees.map((coords) => ({
@@ -366,13 +357,13 @@ export default function MapContainer({
       };
 
       if (!map.current.getSource(sourceId)) {
-        // Add source and layers if they don't exist yet
+        
         map.current.addSource(sourceId, {
           type: "geojson",
           data: geojson,
         });
 
-        // Glow effect (outer soft circle)
+        
         map.current.addLayer({
           id: layerIdOuter,
           type: "circle",
@@ -387,13 +378,13 @@ export default function MapContainer({
               15,
               12,
             ],
-            "circle-color": "#10b981", // emerald-500
+            "circle-color": "#10b981", 
             "circle-opacity": 0.3,
             "circle-blur": 1,
           },
         });
 
-        // Core dot (inner sharp circle)
+        
         map.current.addLayer({
           id: layerIdInner,
           type: "circle",
@@ -408,14 +399,14 @@ export default function MapContainer({
               15,
               4,
             ],
-            "circle-color": "#34d399", // emerald-400
+            "circle-color": "#34d399", 
             "circle-opacity": 1,
             "circle-stroke-width": 1,
             "circle-stroke-color": "#000000",
           },
         });
       } else {
-        // Just update the data if source exists
+        
         map.current.getSource(sourceId).setData(geojson);
       }
     };
@@ -429,13 +420,13 @@ export default function MapContainer({
 
   return (
     <div className="absolute inset-0 w-full h-full bg-base-950">
-      {/* CSS Filter inverts the light OSM map into a dark theme with high contrast */}
+      
       <div
         ref={mapContainer}
         className="absolute inset-0 w-full h-full filter-[invert(100%)_hue-rotate(180deg)_brightness(85%)_contrast(110%)] mix-blend-screen"
       />
 
-      {/* Override maplibre popup background globally to fix the pointing arrow style */}
+      
       <style>{`
         .urban-popup-dark .maplibregl-popup-content {
           background: transparent !important;
@@ -447,7 +438,7 @@ export default function MapContainer({
         }
       `}</style>
 
-      {/* UI overlays will go here (floating panels, toolbars) */}
+      
     </div>
   );
 }

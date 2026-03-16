@@ -12,7 +12,6 @@ import {
 import { Download, TrendingDown, AlertTriangle } from "lucide-react";
 import EmptyState from "../components/common/EmptyState";
 
-// Mock Data untuk Bar Chart (Risiko per Kecamatan)
 const districtData = [
   { name: "Menteng", heat: 85, flood: 30, population: 15 },
   { name: "Kebayoran", heat: 65, flood: 60, population: 20 },
@@ -21,7 +20,6 @@ const districtData = [
   { name: "Tebet", heat: 75, flood: 55, population: 22 },
 ];
 
-// Mock Data untuk Area Chart (Trend Suhu 5 Tahun)
 const trendData = [
   { year: "2024", temp: 34.2, projected: 34.2 },
   { year: "2025", temp: 34.5, projected: 33.8 },
@@ -30,7 +28,6 @@ const trendData = [
   { year: "2028", temp: 35.5, projected: 31.8 },
 ];
 
-// Custom Tooltip for Charts
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -68,7 +65,7 @@ export default function Analytics() {
 
   return (
     <div className="h-full w-full bg-base-950 p-6 lg:p-10 overflow-auto">
-      {/* Header */}
+      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-heading font-semibold text-white tracking-tight">
@@ -88,7 +85,7 @@ export default function Analytics() {
         </button>
       </div>
 
-      {/* Summary KPI Cards */}
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-base-900 border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
@@ -136,9 +133,9 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* Charts Grid */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart */}
+        
         <div className="bg-base-900 border border-white/5 p-6 rounded-2xl shadow-xl">
           <h3 className="text-white font-semibold text-sm mb-6">
             Risk Distribution by District
@@ -191,7 +188,7 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* Area Chart */}
+        
         <div className="bg-base-900 border border-white/5 p-6 rounded-2xl shadow-xl">
           <h3 className="text-white font-semibold text-sm mb-6">
             5-Year Temperature Projection (Baseline vs RL Optimized)

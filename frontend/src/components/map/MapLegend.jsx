@@ -1,12 +1,5 @@
 import { useLayer } from "../../context/LayerContext";
 
-/**
- * Konfigurasi legenda untuk setiap layer peta.
- * Berisi label, unit, deskripsi, dan warna gradien interpolasi
- * yang sesuai dengan aturan getLayerColorRule() di MapContainer.
- *
- * @type {Record<string, {label: string, unit: string, description: string, min: string, max: string, colors: string[]}>}
- */
 const legendConfig = {
   heat: {
     label: "Heat Risk",
@@ -14,8 +7,8 @@ const legendConfig = {
     description: "Land Surface Temperature",
     min: "20",
     max: "45",
-    // WHY: Gradien warna mengikuti skala interpolasi MapLibre di getLayerColorRule()
-    // agar legenda selalu konsisten secara visual dengan rendering peta.
+    
+    
     colors: [
       "rgba(99, 102, 241, 0.6)",
       "rgba(234, 179, 8, 0.7)",
@@ -60,12 +53,6 @@ const legendConfig = {
   },
 };
 
-/**
- * Komponen legenda peta yang mengapung di sudut kanan bawah.
- * Secara otomatis berubah berdasarkan layer aktif dari LayerContext.
- *
- * @returns {JSX.Element} Panel legenda dengan gradien warna dan label skala
- */
 export default function MapLegend() {
   const { activeLayer } = useLayer();
   const config = legendConfig[activeLayer];
@@ -79,7 +66,7 @@ export default function MapLegend() {
   return (
     <div className="absolute bottom-[120px] left-4 lg:bottom-6 lg:left-4 z-10 pointer-events-auto">
       <div className="bg-base-950/85 backdrop-blur-lg border border-white/10 rounded-2xl p-4 w-56 shadow-xl">
-        {/* Header */}
+        
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-semibold text-white tracking-wide uppercase">
             {config.label}
@@ -89,18 +76,18 @@ export default function MapLegend() {
           </span>
         </div>
 
-        {/* Deskripsi */}
+        
         <p className="text-[11px] text-base-500 mb-3 leading-relaxed">
           {config.description}
         </p>
 
-        {/* Gradient Bar */}
+        
         <div
           className="h-2.5 rounded-full border border-white/10"
           style={gradientStyle}
         />
 
-        {/* Min / Max Labels */}
+        
         <div className="flex justify-between mt-1.5">
           <span className="text-[10px] text-base-400 font-mono">
             {config.min}

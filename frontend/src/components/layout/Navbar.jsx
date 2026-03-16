@@ -14,7 +14,7 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-base-950/80 backdrop-blur-lg border-b border-white/5 h-16 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-        {/* Brand */}
+        
         <Link to="/" className="flex items-center gap-1 outline-none group">
           <span className="w-8 h-8 rounded-lg bg-base-900 border border-white/5 shadow-card flex items-center justify-center mr-2 group-hover:shadow-glow-sm transition-all">
             <span className="font-emphasis italic font-normal text-white text-lg leading-none translate-y-px">
@@ -29,7 +29,7 @@ export default function Navbar() {
           </h1>
         </Link>
 
-        {/* Links */}
+        
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => {
             const isActive = location.pathname.startsWith(item.path);
@@ -54,7 +54,7 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* CTA / Quick Actions */}
+        
         <div className="flex items-center gap-3">
           <Link
             to="/design-system"

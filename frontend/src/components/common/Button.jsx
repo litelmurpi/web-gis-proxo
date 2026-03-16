@@ -16,7 +16,7 @@ const Button = forwardRef(
     },
     ref,
   ) => {
-    // Base styles (using rounded-full based on preferred design)
+    
     const baseStyles =
       "relative z-10 overflow-hidden group cursor-pointer font-medium font-body transition-all duration-300 transform hover:-translate-y-0.5 outline-none ring-2 ring-transparent disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0";
 
@@ -42,11 +42,11 @@ const Button = forwardRef(
 
     const classes = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`;
 
-    // Icon sizing
+    
     const iconSizeClass = size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4";
 
     const renderContent = () => {
-      // For primary variant, we use the complex nested structure for the 3D inner glow effect
+      
       if (variant === "primary") {
         return (
           <>
@@ -62,14 +62,14 @@ const Button = forwardRef(
                 <RightIcon className={iconSizeClass} />
               )}
             </span>
-            {/* Subtle top inner gradient highlight for 3D feel */}
+            
             <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
             <div className="absolute inset-0 rounded-full bg-linear-to-b from-white/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           </>
         );
       }
 
-      // For secondary and other simple variants, keep the structure flatter but still support icons
+      
       return (
         <span className="flex items-center justify-center gap-2">
           {isLoading && (

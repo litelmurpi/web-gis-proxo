@@ -4,9 +4,9 @@ const LayerContext = createContext(undefined);
 
 export function LayerProvider({ children }) {
   const [activeLayer, setActiveLayer] = useState("heat");
-  const [cityGeoJSON, setCityGeoJSON] = useState(null); // Shared live GeoJSON from search results
+  const [cityGeoJSON, setCityGeoJSON] = useState(null); 
 
-  // Keep a unified registry of exact layer configs
+  
   const layers = [
     { id: "heat", name: "Heat Risk", color: "text-red-400" },
     { id: "flood", name: "Flood Risk Model", color: "text-blue-400" },

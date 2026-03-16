@@ -1,15 +1,5 @@
 import { Inbox } from "lucide-react";
 
-/**
- * Reusable empty/error state component.
- * Shown when data is unavailable or a fetch fails.
- *
- * @param {Object} props
- * @param {string} [props.title] - Heading text
- * @param {string} [props.message] - Descriptive message
- * @param {Function} [props.onRetry] - Callback for retry button
- * @param {React.ReactNode} [props.icon] - Custom icon override
- */
 export default function EmptyState({
   title = "No Data Available",
   message = "There's nothing to display here yet. Data will appear once the backend is connected.",

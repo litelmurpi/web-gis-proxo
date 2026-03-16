@@ -12,17 +12,6 @@ import {
   BadgeDollarSign,
 } from "lucide-react";
 
-/**
- * Simulation parameter controls with city input,
- * tree budget slider, and reward weight configuration.
- *
- * @param {Object} props
- * @param {Function} props.onRun - Handler: (city, budget, weights) => void
- * @param {Function} props.onStop - Handler to stop simulation
- * @param {boolean} props.isRunning - Whether simulation is in progress
- * @param {boolean} props.isLoading - Whether API call is in progress
- * @returns {JSX.Element}
- */
 export default function SimulationControls({
   onRun,
   onStop,
@@ -47,7 +36,7 @@ export default function SimulationControls({
 
   return (
     <div className="bg-base-950/85 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-5 pointer-events-auto">
-      {/* Header */}
+      
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-primary-500/10 rounded-lg border border-primary-500/20">
           <Settings2 className="w-5 h-5 text-primary-400" />
@@ -60,9 +49,9 @@ export default function SimulationControls({
         </div>
       </div>
 
-      {/* Inputs Container */}
+      
       <div className="flex flex-col gap-5">
-        {/* City Input */}
+        
         <div>
           <div className="flex items-center gap-2 mb-2">
             <MapPin className="w-4 h-4 text-primary-400" />
@@ -80,7 +69,7 @@ export default function SimulationControls({
           />
         </div>
 
-        {/* Tree Budget Slider */}
+        
         <div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-2">
@@ -109,7 +98,7 @@ export default function SimulationControls({
           </div>
         </div>
 
-        {/* Reward Weights (Collapsible) */}
+        
         <div>
           <button
             onClick={() => setShowWeights(!showWeights)}
@@ -186,7 +175,7 @@ export default function SimulationControls({
         </div>
       </div>
 
-      {/* Action Button */}
+      
       {isLoading ? (
         <button
           disabled

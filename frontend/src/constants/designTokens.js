@@ -1,6 +1,4 @@
-/* =====================================================
-   Design System Documentation — Color Data (Mailkit Inspired)
-   ===================================================== */
+
 
 export const BASE_COLORS = [
   { token: "base-950", hex: "#000000", usage: "App background (Pure Black)" },

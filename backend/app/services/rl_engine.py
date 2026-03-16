@@ -19,7 +19,6 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class SimulationMetrics:
     """Aggregated metrics for before/after comparison."""
@@ -43,7 +42,6 @@ class SimulationMetrics:
             "total_trees": self.total_trees,
             "total_reward": round(self.total_reward, 4),
         }
-
 
 @dataclass
 class PlacementStep:
@@ -69,14 +67,12 @@ class PlacementStep:
             "delta_equity": round(self.delta_equity, 3),
         }
 
-
 DEFAULT_WEIGHTS = {
     "heat": 0.35,
     "flood": 0.30,
     "equity": 0.25,
     "cost": 0.10,
 }
-
 
 class RLEnvironment:
     """
@@ -91,7 +87,6 @@ class RLEnvironment:
         self.n = len(grid_gdf)
         self.weights = weights or DEFAULT_WEIGHTS.copy()
 
-        # Extract state arrays from GeoDataFrame
         self.lst = grid_gdf["lst"].values.astype(float).copy()
         self.flood = grid_gdf["floodScore"].values.astype(float).copy()
         self.equity = grid_gdf["equityScore"].values.astype(float).copy()
@@ -99,15 +94,12 @@ class RLEnvironment:
         self.green_density = grid_gdf["green_density"].values.astype(float).copy()
         self.tree_planted = np.zeros(self.n, dtype=bool)
 
-        # Precompute cell centroids for neighbor lookups and GeoJSON output
         centroids = grid_gdf.geometry.centroid
         self.cell_lngs = centroids.x.values
         self.cell_lats = centroids.y.values
 
-        # Build neighbor index (cells within ~1 grid cell distance)
         self._build_neighbor_index()
 
-        # Track initial state for before/after comparison
         self.initial_lst = self.lst.copy()
         self.initial_flood = self.flood.copy()
         self.initial_equity = self.equity.copy()
@@ -116,24 +108,22 @@ class RLEnvironment:
         """Build spatial neighbor index for transition model kernel decay."""
         self.neighbors: Dict[int, List[int]] = {}
 
-        # Estimate cell size from first two cells (approximate)
         if self.n < 2:
             for i in range(self.n):
                 self.neighbors[i] = []
             return
 
-        # Use median distance between adjacent centroids as cell size
         sample_dists = []
         for i in range(min(10, self.n)):
             dists = np.sqrt(
                 (self.cell_lngs - self.cell_lngs[i]) ** 2 +
                 (self.cell_lats - self.cell_lats[i]) ** 2
             )
-            dists[i] = np.inf  # exclude self
+            dists[i] = np.inf
             sample_dists.append(np.min(dists))
         
         cell_size = np.median(sample_dists) if sample_dists else 0.003
-        neighbor_radius = cell_size * 2.5  # ~2.5 cells radius for kernel decay
+        neighbor_radius = cell_size * 2.5
 
         for i in range(self.n):
             dists = np.sqrt(
@@ -145,7 +135,7 @@ class RLEnvironment:
 
     def get_valid_actions(self) -> np.ndarray:
         """Return indices of cells where trees can be planted."""
-        # Cannot plant where: already planted, or water body (water_proximity > 0.8)
+
         water_mask = self.grid_gdf.get("water_proximity", np.zeros(self.n))
         if isinstance(water_mask, (int, float)):
             water_mask = np.full(self.n, water_mask)
@@ -160,34 +150,26 @@ class RLEnvironment:
         Compute expected reward for planting a tree at cell idx.
         Returns (total_reward, delta_lst, delta_flood, delta_equity).
         """
-        # --- Delta LST ---
-        # Tree reduces LST by 0.5–1.5°C proportional to current LST above baseline
-        lst_excess = max(self.lst[idx] - 26.0, 0.0)  # excess above comfortable 26°C
-        delta_lst = -(0.5 + min(lst_excess / 10.0, 1.0))  # -0.5 to -1.5°C
+
+        lst_excess = max(self.lst[idx] - 26.0, 0.0)
+        delta_lst = -(0.5 + min(lst_excess / 10.0, 1.0))
         
-        # Neighbor effect: -0.1 to -0.3°C (diminishing with distance)
+
         neighbor_delta_lst = len(self.neighbors.get(idx, [])) * -0.05
 
-        # --- Delta Flood ---
-        # Trees reduce flood risk proportional to building density (imperviousness)
-        base_flood_reduction = 3.0 + self.building_density[idx] * 8.0  # 3–11% reduction
+        base_flood_reduction = 3.0 + self.building_density[idx] * 8.0
         delta_flood = -base_flood_reduction
 
-        # --- Delta Equity ---
-        # Green equity improves more in areas with low current equity (green desert priority)
         equity_deficit = max(100.0 - self.equity[idx], 0.0)
-        delta_equity = 2.0 + (equity_deficit / 100.0) * 6.0  # +2 to +8 points
+        delta_equity = 2.0 + (equity_deficit / 100.0) * 6.0
 
-        # --- Cost Penalty ---
-        # Higher penalty for planting in already-green areas (diminishing returns)
-        cost_penalty = self.green_density[idx] * 2.0  # 0.0–1.0 scaled
+        cost_penalty = self.green_density[idx] * 2.0
 
-        # --- Multi-objective reward ---
         w = self.weights
         reward = (
-            w["heat"] * abs(delta_lst + neighbor_delta_lst) / 1.5 +  # normalize
-            w["flood"] * abs(delta_flood) / 11.0 +  # normalize
-            w["equity"] * delta_equity / 8.0 -  # normalize
+            w["heat"] * abs(delta_lst + neighbor_delta_lst) / 1.5 +
+            w["flood"] * abs(delta_flood) / 11.0 +
+            w["equity"] * delta_equity / 8.0 -
             w["cost"] * cost_penalty
         )
 
@@ -200,23 +182,18 @@ class RLEnvironment:
         """
         reward, delta_lst, delta_flood, delta_equity = self.compute_reward(idx)
 
-        # Apply transition: LST
         self.lst[idx] += delta_lst
         for neighbor in self.neighbors.get(idx, []):
-            self.lst[neighbor] += -0.05  # subtle neighbor cooling
+            self.lst[neighbor] += -0.05
 
-        # Apply transition: Flood risk
         self.flood[idx] = max(self.flood[idx] + delta_flood, 10.0)
 
-        # Apply transition: Green equity
         self.equity[idx] = min(self.equity[idx] + delta_equity, 95.0)
         for neighbor in self.neighbors.get(idx, []):
             self.equity[neighbor] = min(self.equity[neighbor] + 0.5, 95.0)
 
-        # Apply transition: Green density
         self.green_density[idx] = min(self.green_density[idx] + 0.15, 1.0)
 
-        # Mark as planted
         self.tree_planted[idx] = True
 
         return PlacementStep(
@@ -256,7 +233,6 @@ class RLEnvironment:
             total_reward=0.0,
         )
 
-
 class GreedyRLAgent:
     """
     Greedy heuristic agent that selects the cell with highest expected reward
@@ -280,7 +256,6 @@ class GreedyRLAgent:
         best_idx = valid_actions[np.argmax(rewards)]
         return int(best_idx)
 
-
 def run_simulation(
     grid_gdf: gpd.GeoDataFrame,
     budget: int = 50,
@@ -298,16 +273,13 @@ def run_simulation(
     Returns:
         dict with keys: before, after, steps, trees (GeoJSON), grid_after (GeoJSON)
     """
-    budget = max(1, min(budget, 500))  # clamp
+    budget = max(1, min(budget, 500))
 
-    # Initialize environment and agent
     env = RLEnvironment(grid_gdf, weights)
     agent = GreedyRLAgent(env)
 
-    # Capture before metrics
     before_metrics = env.get_initial_metrics()
 
-    # Run simulation
     steps: List[PlacementStep] = []
     total_reward = 0.0
 
@@ -321,11 +293,9 @@ def run_simulation(
         total_reward += placement.reward
         steps.append(placement)
 
-    # Capture after metrics
     after_metrics = env.get_metrics()
     after_metrics.total_reward = total_reward
 
-    # Build trees GeoJSON (Point features)
     trees_geojson = {
         "type": "FeatureCollection",
         "features": [
@@ -347,7 +317,6 @@ def run_simulation(
         ],
     }
 
-    # Build after-grid GeoJSON (updated values for before/after comparison)
     after_gdf = grid_gdf.copy()
     after_gdf["lst"] = env.lst
     after_gdf["floodScore"] = env.flood

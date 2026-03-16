@@ -1,7 +1,6 @@
 import { Layers, ThermometerSun, Waves, Users, AlignLeft } from "lucide-react";
 import { useLayer } from "../../context/LayerContext";
 
-// Map our context 'layers' to their corresponding lucide icons
 const layerIcons = {
   heat: ThermometerSun,
   flood: Waves,
@@ -16,7 +15,7 @@ export default function Sidebar({ className = "" }) {
     <aside
       className={`w-72 bg-base-950 border-r border-white/5 flex flex-col pt-20 h-screen sticky top-0 ${className}`}
     >
-      {/* Sidebar Header */}
+      
       <div className="p-6 border-b border-white/5">
         <h2 className="text-xs font-mono font-bold tracking-widest text-base-500 uppercase flex items-center gap-2 mb-1">
           <Layers className="w-4 h-4" />
@@ -27,7 +26,7 @@ export default function Sidebar({ className = "" }) {
         </p>
       </div>
 
-      {/* Layer List Placeholder */}
+      
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {layers.map((layer) => {
           const Icon = layerIcons[layer.id];
@@ -57,7 +56,7 @@ export default function Sidebar({ className = "" }) {
                 </span>
               </div>
 
-              {/* Custom Toggle Switch */}
+              
               <div
                 className={`w-8 h-4 rounded-full border shadow-card relative transition-colors duration-300
                 ${isActive ? "bg-primary-500/20 border-primary-500/50" : "bg-base-800 border-white/5"}`}
@@ -72,7 +71,7 @@ export default function Sidebar({ className = "" }) {
         })}
       </div>
 
-      {/* Footer area inside sidebar */}
+      
       <div className="p-4 border-t border-white/5">
         <p className="text-[10px] font-mono text-base-500 uppercase tracking-widest text-center">
           City Data: Surabaya

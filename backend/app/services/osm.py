@@ -11,7 +11,7 @@ OSM_TIMEOUT_SECONDS = 15
 OSM_MAX_AREA_DEG = 0.1
 
 async def fetch_osm_data(client: httpx.AsyncClient, min_lon: float, min_lat: float, max_lon: float, max_lat: float):
-    # Round coordinates for caching (1km grid snap)
+
     cache_key = f"{round(min_lon, 2)},{round(min_lat, 2)},{round(max_lon, 2)},{round(max_lat, 2)}"
     cached = osm_cache.get(cache_key)
     if cached:
@@ -64,7 +64,7 @@ async def fetch_osm_data(client: httpx.AsyncClient, min_lon: float, min_lat: flo
     building_polys = []
     green_polys = []
     water_polys = []
-    water_lines = []  # Collect LineStrings for batch reprojection
+    water_lines = []
 
     for el in data.get("elements", []):
         if el["type"] == "way" and "nodes" in el:
@@ -81,7 +81,7 @@ async def fetch_osm_data(client: httpx.AsyncClient, min_lon: float, min_lat: flo
                                 poly = poly.buffer(0)
                             water_polys.append(poly)
                         else:
-                            # Collect LineStrings for batch buffer later
+
                             from shapely.geometry import LineString
                             water_lines.append(LineString(coords))
                     elif len(coords) >= 3:
@@ -95,7 +95,6 @@ async def fetch_osm_data(client: httpx.AsyncClient, min_lon: float, min_lat: flo
                 except Exception:
                     pass
 
-    # Batch buffer waterway LineStrings (single CRS transform instead of per-element)
     if water_lines:
         try:
             lines_gdf = gpd.GeoSeries(water_lines, crs="EPSG:4326").to_crs("EPSG:32748")

@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 async def fetch_open_meteo_current(client: httpx.AsyncClient, lat: float, lon: float):
-    # Round coordinates for caching (weather doesn't change much within ~1km)
+
     cache_key = f"{round(lat, 2)},{round(lon, 2)}"
     cached = weather_cache.get(cache_key)
     if cached:
@@ -37,5 +37,5 @@ async def fetch_open_meteo_current(client: httpx.AsyncClient, lat: float, lon: f
         return data
     except Exception as e:
         logger.error(f"Open-Meteo API error: {e}")
-        # Fallback dictionary if API fails
+
         return {"current": {"temperature_2m": 30.0}}

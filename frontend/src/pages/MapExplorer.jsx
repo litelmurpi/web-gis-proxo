@@ -26,9 +26,9 @@ export default function MapExplorer() {
   const { activeLayer, setActiveLayer, layers } = useLayer();
   const [isMobileAnalyticsOpen, setIsMobileAnalyticsOpen] = useState(false);
   
-  // Search State
+  
   const [searchInput, setSearchInput] = useState("");
-  const [cityQuery, setCityQuery] = useState(null); // null = no auto-load on first visit
+  const [cityQuery, setCityQuery] = useState(null); 
   const [isMapLoading, setIsMapLoading] = useState(false);
   
   const handleSearchSubmit = (e) => {
@@ -53,7 +53,7 @@ export default function MapExplorer() {
 
   return (
     <div className="w-full h-full bg-base-950 relative overflow-hidden flex">
-      {/* Map Engine - full bleed */}
+      
       <div className="absolute inset-0 z-0">
         <MapContainer 
           activeLayer={activeLayer} 
@@ -62,7 +62,7 @@ export default function MapExplorer() {
         />
       </div>
 
-      {/* Floating City Search Bar */}
+      
       <div className="absolute top-[80px] left-1/2 -translate-x-1/2 md:-translate-x-0 md:left-24 z-10 w-11/12 md:w-96">
         <form 
           onSubmit={handleSearchSubmit}
@@ -88,14 +88,14 @@ export default function MapExplorer() {
         </form>
       </div>
 
-      {/* Floating Overlays — Legenda & Analitik */}
+      
       <MapLegend />
       <AnalyticsPanel
         isOpen={isMobileAnalyticsOpen}
         onClose={() => setIsMobileAnalyticsOpen(false)}
       />
 
-      {/* Floating Sidebar Container for Tools (Mobile Only - Dock Style) */}
+      
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 lg:hidden flex items-center justify-center pointer-events-none">
         <div className="pointer-events-auto flex items-center gap-2 p-2 bg-base-950/80 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-full">
           {layers.map((layer) => {
@@ -106,7 +106,7 @@ export default function MapExplorer() {
               <button
                 key={layer.id}
                 onClick={() => setActiveLayer(layer.id)}
-                title={layer.name} // Tooltip for accessibility
+                title={layer.name} 
                 className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 outline-none
                   ${isActive ? "bg-white/10 border border-white/20 shadow-sm" : "bg-transparent border border-transparent hover:bg-white/5"}`}
               >
@@ -114,7 +114,7 @@ export default function MapExplorer() {
                   className={`w-5 h-5 transition-transform duration-300 ${isActive ? `scale-110 ${layer.color}` : "opacity-60 text-white"}`}
                 />
 
-                {/* Active Indicator Dot */}
+                
                 {isActive && (
                   <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
                 )}
@@ -122,10 +122,10 @@ export default function MapExplorer() {
             );
           })}
 
-          {/* Divider */}
+          
           <div className="w-px h-8 bg-white/10 mx-1" />
 
-          {/* Analytics Modal Toggle Button */}
+          
           <button
             onClick={() => setIsMobileAnalyticsOpen(true)}
             title="City Analytics"

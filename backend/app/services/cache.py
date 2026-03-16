@@ -26,15 +26,10 @@ class TTLCache:
             'timestamp': time.time()
         }
 
-# Cache instances
-# 1. Geocoder: 24 hours (86400s) - City boundaries rarely change
 geocoder_cache = TTLCache(ttl_seconds=86400)
 
-# 2. Open-Meteo: 10 minutes (600s) - Weather updates frequently
 weather_cache = TTLCache(ttl_seconds=600)
 
-# 3. OSM Data: 1 hour (3600s) - Building/park data updates slowly
 osm_cache = TTLCache(ttl_seconds=3600)
 
-# 4. Simulation Grid: 5 minutes (300s) - Re-run RL without re-fetching data
 simulation_cache = TTLCache(ttl_seconds=300)
