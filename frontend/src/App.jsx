@@ -12,6 +12,7 @@ const MapExplorer = lazy(() => import("./pages/MapExplorer"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Simulation = lazy(() => import("./pages/Simulation"));
 const About = lazy(() => import("./pages/About"));
+const PitchDeck = lazy(() => import("./pages/PitchDeck"));
 
 function MainLayout() {
   return (
@@ -84,6 +85,7 @@ function App() {
 
         
         <Route path="/design-system" element={<DesignSystem />} />
+        <Route path="/pitch" element={<Suspense fallback={<PageSkeleton />}><PitchDeck /></Suspense>} />
       </Routes>
     </BrowserRouter>
   );
