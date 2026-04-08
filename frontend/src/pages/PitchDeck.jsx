@@ -310,10 +310,10 @@ const SLIDES = [
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { name: "grid.py", desc: "Microclimate synthesis" },
-                { name: "rl_engine.py", desc: "Greedy RL Agent" },
-                { name: "endpoints.py", desc: "REST API" },
-                { name: "cache.py", desc: "In-memory TTL" },
+                { name: "Grid Ops", desc: "GeoPandas Generator" },
+                { name: "Microclimate", desc: "NumPy Engine" },
+                { name: "RL Agent", desc: "Greedy Optimizer" },
+                { name: "API & Cache", desc: "FastAPI + TTL" },
               ].map(f => (
                 <div key={f.name} className="p-3 bg-base-950 border border-white/[0.05] rounded-xl">
                   <p className="font-mono text-xs text-primary-300 mb-0.5">{f.name}</p>
@@ -525,7 +525,42 @@ const SLIDES = [
     ),
   },
 
-  // 8 — CLOSING
+  // 8 — ROADMAP
+  {
+    id: "roadmap",
+    badge: "08 / Future Roadmap",
+    title: "Development Roadmap",
+    subtitle: "From a working prototype to a comprehensive national urban climate platform.",
+    render: () => (
+      <motion.div variants={stagger} initial="hidden" animate="show" exit="exit" className="flex flex-col gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+          {[
+            { phase: "v1 — Current", time: "Live Now", items: ["Interactive Map Explorer", "Greedy RL Simulation", "Real-time API Pipeline", "Analytics Dashboard"], current: true },
+            { phase: "v2 — Near Term", time: "Q3 2026", items: ["PostgreSQL + PostGIS DB", "Export GeoJSON & CSV", "IoT Sensor Integration", "User Auth & Sessions"] },
+            { phase: "v3 — Mid Term", time: "Q4 2026", items: ["Full PPO Deep RL Agent", "Multi-city Comparison", "Public API Access", "Automated Weekly Updates"] },
+            { phase: "v4 — Long Term", time: "2027", items: ["National Equity Index", "Community Heat Reporting", "Native Mobile App", "Global Area Support"] },
+          ].map((r, i) => (
+            <motion.div key={i} variants={fadeUp} className={`relative p-5 sm:p-6 border rounded-2xl flex flex-col gap-4 ${r.current ? "bg-primary-950/20 border-primary-500/30 shadow-glow-sm" : "bg-base-900 border-white/[0.05] shadow-card h-full"}`}>
+              <div className="flex flex-col gap-2">
+                <span className={`text-[10px] sm:text-xs font-mono tracking-widest uppercase px-2 py-1 rounded-md self-start ${r.current ? "bg-primary-500/20 text-primary-300 font-bold" : "bg-white/5 text-base-500"}`}>{r.phase}</span>
+                <span className={`text-base font-heading font-semibold ${r.current ? "text-white" : "text-base-300"}`}>{r.time}</span>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {r.items.map((item, j) => (
+                  <li key={j} className="flex items-start gap-2.5">
+                     <Check className={`w-4 h-4 shrink-0 mt-0.5 ${r.current ? "text-primary-400" : "text-base-600"}`} />
+                     <span className={`text-sm leading-snug ${r.current ? "text-primary-100" : "text-base-400"}`}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    ),
+  },
+
+  // 9 — CLOSING
   {
     id: "closing",
     render: () => (
@@ -568,7 +603,7 @@ const SLIDES = [
           <div className="hidden sm:block w-px h-10 bg-white/[0.07]" />
           <div className="text-center">
             <p className="text-[10px] font-mono text-base-500 uppercase tracking-[0.15em] mb-1">Date</p>
-            <p className="text-base text-white font-mono font-medium">Apr 12, 2026</p>
+            <p className="text-base text-white font-mono font-medium">Apr 08, 2026</p>
           </div>
         </motion.div>
       </motion.div>
@@ -585,6 +620,7 @@ const HEADERS = {
   features:     { badge: "05 / Demo Highlights",   title: "Interactive Platform Features",        subtitle: "A WebGIS that feels alive — from city search to live RL animation." },
   uniqueness:   { badge: "06 / Value Proposition", title: "A Genuine Leap Forward",               subtitle: "From descriptive to prescriptive — no other platform in Indonesia combines all of this." },
   impact:       { badge: "07 / Impact",            title: "Who Benefits",                         subtitle: "Every tree planted is scientifically optimized for maximum ecological impact." },
+  roadmap:      { badge: "08 / Future Roadmap",    title: "Development Roadmap",                  subtitle: "From a working prototype to a comprehensive national urban climate platform." },
 };
 
 // ─── ROOT COMPONENT ───────────────────────────────────────────────────────────
